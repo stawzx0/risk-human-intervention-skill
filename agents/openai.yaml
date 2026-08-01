@@ -1,0 +1,5 @@
+﻿interface:
+  display_name: "Risk & Human Intervention"
+  short_description: "Assess beauty retail CS response risk levels"
+  brand_color: "#002FA7"
+  default_prompt: "Use $risk-human-intervention to evaluate whether a customer service response needs human review."
