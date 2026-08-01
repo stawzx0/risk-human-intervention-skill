@@ -67,8 +67,8 @@
         <input type="text" id="confidence" value="0.92">
       </div>
     </div>
-    <label>政策出处（可追溯，如 发货政策#SP-01）</label>
-    <input type="text" id="policy_source" placeholder="发货政策#SP-01（可选）">
+    <label>政策出处（可追溯，如 发货政策）</label>
+    <input type="text" id="policy_source" placeholder="发货政策（可选）">
     <div class="checks">
       <label><input type="checkbox" id="promo"> 涉及促销</label>
       <label><input type="checkbox" id="inventory"> 涉及库存</label>
@@ -103,8 +103,8 @@
 </div>
 
 <div class="card" style="margin-top:24px">
-  <h2>③ 发货知识库（可追溯政策出处，SP-01~SP-05）</h2>
-  <div class="sub">页面自动加载发货政策知识库（SP-01~SP-05）；评估时自动高亮命中当前问题的政策条目。</div>
+  <h2>③ 发货知识库（可追溯政策出处）</h2>
+  <div class="sub">页面自动加载发货政策知识库；评估时自动高亮命中当前问题的政策条目。</div>
   <div class="kb" id="kb"></div>
 </div>
 
@@ -207,7 +207,7 @@ function zhtext(s) {
     .replace(/query\/answer/g, "问题/回复")
     .replace(/response_mode/g, "回答边界")
     .replace(/human_required/g, "人工介入要求")
-    .replace(/risk_level/g, "风险等级").replace(/FAQ/g, "问答");
+    .replace(/risk_level/g, "风险等级").replace(/FAQ/g, "问答").replace(/#SP-\d+/g, "");
 }
 let KB = [];
 
@@ -242,7 +242,7 @@ function renderKB(hitIds) {
     const hit = hitIds.includes(e.id);
     const kws = (e.keywords || []).map(k => `<span class="kw">${esc(k)}</span>`).join(" ");
     return `<div class="item${hit ? " hit" : ""}">
-      <b>${esc(e.id)} ${esc(e.title)}</b> <span class="tag ${e.auto === "yes" ? "yes" : "no"}">${e.auto === "yes" ? "可自动" : "转人工"}</span><br>
+      <b>${esc(e.title)}</b> <span class="tag ${e.auto === "yes" ? "yes" : "no"}">${e.auto === "yes" ? "可自动" : "转人工"}</span><br>
       ${esc(e.policy)}<br><span class="kw">关键词：${kws || "—"}</span>
     </div>`;
   }).join("");
