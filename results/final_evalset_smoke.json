@@ -1,24 +1,24 @@
 {
-  "tag": "baseline-v1.0.0",
+  "tag": "smoke",
   "metrics": {
     "total_cases": 21,
-    "passed": 15,
-    "crash_count": 2,
+    "passed": 21,
+    "crash_count": 0,
     "valid_cases": 15,
     "invalid_input_cases": 6,
-    "risk_accuracy": 0.7333,
-    "disposition_accuracy": 0.7333,
-    "business_effective_resolution_rate": 0.7333,
-    "invalid_input_handling_rate": 0.6667,
+    "risk_accuracy": 1.0,
+    "disposition_accuracy": 1.0,
+    "business_effective_resolution_rate": 1.0,
+    "invalid_input_handling_rate": 1.0,
     "per_class": {
       "low": {
-        "tp": 3,
+        "tp": 7,
         "fp": 0,
-        "fn": 4,
+        "fn": 0,
         "total": 7,
         "precision": 1.0,
-        "recall": 0.4286,
-        "f1": 0.6
+        "recall": 1.0,
+        "f1": 1.0
       },
       "medium": {
         "tp": 3,
@@ -31,15 +31,15 @@
       },
       "high": {
         "tp": 5,
-        "fp": 3,
+        "fp": 0,
         "fn": 0,
         "total": 5,
-        "precision": 0.625,
+        "precision": 1.0,
         "recall": 1.0,
-        "f1": 0.7692
+        "f1": 1.0
       }
     },
-    "pass_rate": 0.7143
+    "pass_rate": 1.0
   },
   "cases": [
     {
@@ -423,6 +423,7 @@
         "risk_factors": [
           "query 或 answer 为空"
         ],
+        "confidence_sufficient": false,
         "reason": "输入不完整，无法评估"
       },
       "crash": null,
@@ -453,6 +454,7 @@
         "risk_factors": [
           "query 或 answer 为空"
         ],
+        "confidence_sufficient": false,
         "reason": "输入不完整，无法评估"
       },
       "crash": null,
@@ -478,19 +480,19 @@
         "human_required": "error"
       },
       "actual": {
-        "risk_level": "low",
-        "human_required": "no",
+        "risk_level": "error",
+        "human_required": "error",
         "risk_factors": [
-          "未检测到高风险内容"
+          "query+answer 超过 2000 字上限"
         ],
-        "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送"
+        "confidence_sufficient": false,
+        "reason": "输入超限"
       },
       "crash": null,
-      "level_ok": false,
-      "human_ok": false,
+      "level_ok": true,
+      "human_ok": true,
       "extra_ok": true,
-      "passed": false
+      "passed": true
     },
     {
       "id": "E-15",
@@ -508,12 +510,20 @@
         "risk_level": "error",
         "human_required": "error"
       },
-      "actual": null,
-      "crash": "TypeError: '<=' not supported between instances of 'float' and 'str'",
-      "level_ok": false,
-      "human_ok": false,
+      "actual": {
+        "risk_level": "error",
+        "human_required": "error",
+        "risk_factors": [
+          "confidence 值 'abc' 必须为数值"
+        ],
+        "confidence_sufficient": false,
+        "reason": "置信度参数不合法"
+      },
+      "crash": null,
+      "level_ok": true,
+      "human_ok": true,
       "extra_ok": true,
-      "passed": false
+      "passed": true
     },
     {
       "id": "E-16",
@@ -531,12 +541,20 @@
         "risk_level": "low",
         "human_required": "no"
       },
-      "actual": null,
-      "crash": "TypeError: argument of type 'NoneType' is not iterable",
-      "level_ok": false,
-      "human_ok": false,
+      "actual": {
+        "risk_level": "low",
+        "human_required": "no",
+        "risk_factors": [
+          "未检测到高风险内容"
+        ],
+        "confidence_sufficient": true,
+        "reason": "标准FAQ，置信度充足，可自动发送"
+      },
+      "crash": null,
+      "level_ok": true,
+      "human_ok": true,
       "extra_ok": true,
-      "passed": false
+      "passed": true
     },
     {
       "id": "E-17",
@@ -555,19 +573,19 @@
         "human_required": "no"
       },
       "actual": {
-        "risk_level": "high",
-        "human_required": "yes",
+        "risk_level": "low",
+        "human_required": "no",
         "risk_factors": [
-          "涉及医疗功效/成分宣称，需合规审核"
+          "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送"
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
-      "level_ok": false,
-      "human_ok": false,
+      "level_ok": true,
+      "human_ok": true,
       "extra_ok": true,
-      "passed": false
+      "passed": true
     },
     {
       "id": "E-18",
@@ -586,19 +604,19 @@
         "human_required": "no"
       },
       "actual": {
-        "risk_level": "high",
-        "human_required": "yes",
+        "risk_level": "low",
+        "human_required": "no",
         "risk_factors": [
-          "涉及促销/优惠/价格内容，需人工确认"
+          "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送"
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
-      "level_ok": false,
-      "human_ok": false,
+      "level_ok": true,
+      "human_ok": true,
       "extra_ok": true,
-      "passed": false
+      "passed": true
     },
     {
       "id": "E-19",
@@ -617,19 +635,19 @@
         "human_required": "no"
       },
       "actual": {
-        "risk_level": "high",
-        "human_required": "yes",
+        "risk_level": "low",
+        "human_required": "no",
         "risk_factors": [
-          "涉及医疗功效/成分宣称，需合规审核"
+          "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送"
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
-      "level_ok": false,
-      "human_ok": false,
+      "level_ok": true,
+      "human_ok": true,
       "extra_ok": true,
-      "passed": false
+      "passed": true
     },
     {
       "id": "E-20",
@@ -651,7 +669,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": false,
-        "reason": "置信度(0.00)较低，建议人工确认"
+        "reason": "未提供置信度，按保守策略建议人工复核"
       },
       "crash": null,
       "level_ok": true,
