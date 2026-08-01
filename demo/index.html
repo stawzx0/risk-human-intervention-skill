@@ -39,7 +39,7 @@
 </head>
 <body>
 <h1>美妆零售客服 · 风险与人工介入评估器 Demo</h1>
-<div class="sub">发送前安全阀：判定话术推荐回复可直接自动发送、建议人工复核还是必须人工介入 ｜ 版本 v1.1.0</div>
+<div class="sub">发送前安全阀：判定话术推荐回复可直接自动发送、建议人工复核还是必须人工介入 ｜ 版本 v1.2.0</div>
 
 <div class="grid">
   <div class="card">
@@ -76,6 +76,8 @@
       <button data-preset="negation">边界场景：否定语境 → 不再误报（low / no）</button>
       <button data-preset="oversize">边界场景：超长输入 → 错误拦截（error）</button>
       <button data-preset="badconf">无效输入：置信度类型错误 → 不崩溃（error）</button>
+      <button data-preset="refundfaq">正常流程：退款政策 FAQ → 自动发送（low / no，v1.2.0 修复）</button>
+      <button data-preset="doubleneg">人工介入：双重否定 → 正确识别为有优惠（high / yes，v1.2.0 修复）</button>
     </div>
     <div class="result" id="result" style="margin-top:20px">
       <div class="sub">评估结果将显示在右侧</div>
@@ -84,8 +86,8 @@
 </div>
 
 <div class="foot">
-  说明：演示为正常流程与失败/边界场景对照。基线 v1.0.0 中「否定语境」「超长输入」「置信度类型错误」分别误报/未拦截/崩溃；
-  v1.1.0 已修复。评测闭环详见《Eval 与项目验收报告》。
+  说明：演示为正常流程与失败/边界场景对照。第一轮（v1.0.0→v1.1.0）修复了「否定语境误报」「超长输入未拦截」「置信度类型错误崩溃」；
+  第二轮（v1.1.0→v1.2.0）新增「退款政策 FAQ 误判投诉」「双重否定误消解」两个修复场景。评测闭环详见《Eval 与项目验收报告》。
 </div>
 <div class="flash" id="flash"></div>
 
@@ -111,6 +113,14 @@ const PRESETS = {
   badconf: {
     query: "你好", answer: "您好，很高兴为您服务！",
     category: "其他", confidence: "abc", promo: false, inventory: false, medical: false
+  },
+  refundfaq: {
+    query: "你们的售后政策是什么？", answer: "支持7天无理由退款退货，不影响二次销售即可。",
+    category: "其他", confidence: "0.92", promo: false, inventory: false, medical: false
+  },
+  doubleneg: {
+    query: "这个月店铺有活动吗？", answer: "本品不是没有优惠，全场8折起。",
+    category: "护肤", confidence: "0.85", promo: false, inventory: false, medical: false
   }
 };
 const LEVEL_META = {
