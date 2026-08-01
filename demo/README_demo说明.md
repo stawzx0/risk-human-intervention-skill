@@ -28,6 +28,8 @@ python server.py
 # 浏览器打开 http://127.0.0.1:8765
 ```
 
+- **纯静态部署（GitHub Pages）**：无需后端。页面在 `POST /api/evaluate` 不可用时，自动降级调用 `evaluator.js` 内置评估器（`evaluateRisk`），结果与 Python 版一致。
+
 页面支持：
 - 手动输入 query / answer / 品类 / 置信度 / 政策出处（policy_source）/ 风险标记后点「开始评估」
 - 右侧「快速场景」按钮一键载入 15 个演示预设（含 6 个 v1.3.0 发货/出处场景 + 3 个 v1.4.0 回答边界场景）
@@ -39,3 +41,5 @@ python server.py
 Demo 页面通过 `POST /api/evaluate` 调用 Skill 包内真实 Python 实现
 （`../risk-human-intervention-skill/scripts/risk_evaluator.py`，v1.4.0），
 非演示镜像，结果与评测集（68 条）一致。知识库内容与 `references/shipping-policy.md` 对应。
+
+GitHub Pages 纯静态部署时，`evaluator.js` 为 Python 实现的等价前端移植（68 条评测逐字段一致），接口不可用时自动降级，Demo 可在无后端环境直接运行。
