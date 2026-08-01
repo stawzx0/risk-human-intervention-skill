@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>风险与人工介入评估器 · Demo v1.4.0</title>
+<title>风险与人工介入评估器 · 演示（v1.4.0）</title>
 <style>
   :root{--ink:#0a0a0a;--paper:#fafaf8;--accent:#002FA7;--green:#0e7a3d;--amber:#b26a00;--red:#b3001b;--grey:#6b6b6b}
   *{box-sizing:border-box;margin:0;padding:0}
@@ -45,15 +45,15 @@
 </style>
 </head>
 <body>
-<h1>美妆零售客服 · 风险与人工介入评估器 Demo</h1>
+<h1>美妆零售客服 · 风险与人工介入评估器（演示）</h1>
 <div class="sub">发送前安全阀：判定话术推荐回复可直接自动发送、建议人工复核还是必须人工介入 ｜ 版本 v1.4.0（覆盖发货时效/特殊尺寸/价格例外转人工 + 政策出处可追溯 + 回答边界四类）</div>
 
 <div class="grid">
   <div class="card">
     <h2>① 输入（客户问题 / 系统回复 / 上下文）</h2>
-    <label>客户原始问题（query）</label>
+    <label>客户原始问题</label>
     <textarea id="query" placeholder="例如：这款精华液的成分是什么？"></textarea>
-    <label>系统推荐回复（answer）</label>
+    <label>系统推荐回复</label>
     <textarea id="answer" placeholder="例如：含玻尿酸和烟酰胺，适合油皮。"></textarea>
     <div class="row">
       <div style="flex:1">
@@ -80,8 +80,8 @@
   <div class="card">
     <h2>② 快速场景（演示用预设）</h2>
     <div class="presets">
-      <button data-preset="normal">正常流程：标准 FAQ → 可自动发送</button>
-      <button data-preset="ship_faq">正常流程：发货政策 FAQ → 可自动发送</button>
+      <button data-preset="normal">正常流程：标准问答 → 可自动发送</button>
+      <button data-preset="ship_faq">正常流程：发货政策问答 → 可自动发送</button>
       <button data-preset="ship_time">人工介入：发货时效承诺 → 必须人工介入</button>
       <button data-preset="ship_traceable">人工介入：时效承诺 + 政策出处 → 必须人工介入（可追溯核验）</button>
       <button data-preset="ship_size">人工介入：特殊尺寸计费 → 必须人工介入</button>
@@ -90,7 +90,7 @@
       <button data-preset="negation">边界场景：否定语境 → 不再误报（可自动发送）</button>
       <button data-preset="oversize">边界场景：超长输入 → 拦截并提示（输入无效）</button>
       <button data-preset="badconf">无效输入：置信度类型错误 → 提示输入无效，不崩溃</button>
-      <button data-preset="refundfaq">正常流程：退款政策 FAQ → 可自动发送（v1.2.0 修复）</button>
+      <button data-preset="refundfaq">正常流程：退款政策问答 → 可自动发送（v1.2.0 修复）</button>
       <button data-preset="doubleneg">人工介入：双重否定 → 正确识别为有优惠（v1.2.0 修复）</button>
       <button data-preset="boundary_clarify">边界2·需先澄清：缺规格 → 先澄清再答复（建议人工复核）</button>
       <button data-preset="boundary_partial">边界3·部分回答：已答敏感肌+未覆盖油皮 → 声明未覆盖与下一步（建议人工复核）</button>
@@ -110,10 +110,10 @@
 
 <div class="foot">
   说明：演示为正常流程与失败/边界场景对照。第一轮（v1.0.0→v1.1.0）修复「否定语境误报」「超长输入未拦截」「置信度类型错误崩溃」；
-  第二轮（v1.1.0→v1.2.0）修复「退款政策 FAQ 误判投诉」「双重否定误消解」；
+  第二轮（v1.1.0→v1.2.0）修复「退款政策问答误判投诉」「双重否定误消解」；
   第三轮（v1.2.0→v1.3.0）按约定补齐「发货时效承诺 / 特殊尺寸 / 价格例外转人工」与「政策出处可追溯、无出处不做断言」；
   第四轮（v1.3.0→v1.4.0）新增「回答边界四类」：可直接回答 / 需先澄清 / 只能回答一部分（须声明未覆盖与下一步）/ 不能回答（拒绝或转人工）。
-  评测闭环详见《Eval 与项目验收报告》。
+  评测闭环详见《效果测评与项目验收报告》。
 </div>
 <div class="flash" id="flash"></div>
 
@@ -207,7 +207,7 @@ function zhtext(s) {
     .replace(/query\/answer/g, "问题/回复")
     .replace(/response_mode/g, "回答边界")
     .replace(/human_required/g, "人工介入要求")
-    .replace(/risk_level/g, "风险等级");
+    .replace(/risk_level/g, "风险等级").replace(/FAQ/g, "问答");
 }
 let KB = [];
 
