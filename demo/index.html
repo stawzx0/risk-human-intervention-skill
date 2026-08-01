@@ -117,6 +117,7 @@
 </div>
 <div class="flash" id="flash"></div>
 
+<script src="evaluator.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const PRESETS = {
@@ -211,7 +212,7 @@ async function loadKB() {
     const data = await resp.json();
     KB = data.kb || [];
     renderKB();
-  } catch (e) { /* demo 直开文件时忽略 */ }
+  } catch (e) { KB = (window.SHIPPING_KB || []).slice(); renderKB(); }
 }
 function kbMatches(query) {
   if (!KB.length || !query) return [];
@@ -247,12 +248,18 @@ async function run() {
   };
   renderKB(kbMatches(payload.query).map(e => e.id));
   $("result").innerHTML = '<div class="sub">评估中…</div>';
-  let resp;
+  let r;
   try {
-    resp = await fetch("/api/evaluate", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(payload)});
+    const resp = await fetch("/api/evaluate", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(payload)});
     const data = await resp.json();
     if (!data.ok) { $("result").innerHTML = `<div class="sub">服务异常：${esc(data.error)}</div>`; return; }
-    const r = data.result;
+    r = data.result;
+  } catch (e) {
+    // 静态部署（GitHub Pages）无后端时降级为前端评估器（与 Python v1.4.0 68 条评测一致）
+    r = (window.evaluateRisk ? evaluateRisk(payload.query, payload.answer, payload.context || {}) : null);
+    if (!r) { $("result").innerHTML = `<div class="sub">评估失败：${esc(e.message)}</div>`; return; }
+  }
+  try {
     const meta = LEVEL_META[r.risk_level] || LEVEL_META.error;
     const factors = (r.risk_factors || []).map(f => `<li>${esc(f)}</li>`).join("");
     const src = r.policy_source ? esc(r.policy_source) : "未提供";
