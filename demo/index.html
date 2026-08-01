@@ -1,31 +1,31 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>风险与人工介入评估器 · Demo</title>
+<title>风险与人工介入评估器 · Demo v1.3.0</title>
 <style>
   :root{--ink:#0a0a0a;--paper:#fafaf8;--accent:#002FA7;--green:#0e7a3d;--amber:#b26a00;--red:#b3001b;--grey:#6b6b6b}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background:var(--paper);color:var(--ink);padding:32px;max-width:1080px;margin:0 auto}
+  body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background:var(--paper);color:var(--ink);padding:32px;max-width:1180px;margin:0 auto}
   h1{font-size:22px;margin-bottom:6px}
   .sub{color:var(--grey);font-size:13px;margin-bottom:24px}
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-  @media(max-width:860px){.grid{grid-template-columns:1fr}}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}}
   .card{background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:20px}
   .card h2{font-size:15px;margin-bottom:14px}
   label{display:block;font-size:13px;color:#444;margin:12px 0 4px}
   input[type=text],textarea,select{width:100%;padding:8px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px;font-family:inherit}
   textarea{min-height:64px;resize:vertical}
   .row{display:flex;gap:10px;flex-wrap:wrap}
-  .checks{display:flex;gap:14px;margin-top:8px;font-size:13px}
+  .checks{display:flex;gap:14px;margin-top:8px;font-size:13px;flex-wrap:wrap}
   .checks label{display:inline-flex;align-items:center;gap:4px;margin:0;color:#444}
   button{cursor:pointer;border-radius:6px;font-size:13px;padding:8px 14px;border:1px solid #ccc;background:#fff}
   button.primary{background:var(--accent);color:#fff;border-color:var(--accent);margin-top:16px;width:100%;padding:10px;font-size:14px}
   .presets{display:flex;flex-direction:column;gap:8px;margin-top:10px}
   .presets button{text-align:left;padding:9px 12px;border:1px solid #ddd;background:#f7f7f5}
   .presets button:hover{border-color:var(--accent)}
-  .result{min-height:220px}
+  .result{min-height:240px}
   .badge{display:inline-block;padding:4px 14px;border-radius:999px;color:#fff;font-size:14px;font-weight:600;margin-bottom:12px}
   .low{background:var(--green)}.medium{background:var(--amber)}.high{background:var(--red)}.error{background:var(--grey)}
   .kv{font-size:13px;line-height:1.9}
@@ -33,13 +33,20 @@
   .factors{margin-top:12px;font-size:13px;color:#444}
   .factors li{margin-left:18px;line-height:1.8}
   .reason{margin-top:14px;padding:10px 12px;background:#f4f4f2;border-radius:6px;font-size:13px;line-height:1.7}
+  .kb{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+  .kb .item{border:1px solid #e2e2e0;border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.7;background:#fff}
+  .kb .item.hit{border-color:var(--accent);background:#f2f5ff}
+  .kb .tag{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;margin-right:6px}
+  .kb .tag.no{background:var(--red);color:#fff}
+  .kb .tag.yes{background:var(--green);color:#fff}
+  .kb .kw{color:var(--accent)}
   .foot{margin-top:28px;color:var(--grey);font-size:12px;line-height:1.8}
   .flash{position:fixed;right:20px;bottom:20px;background:var(--green);color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none}
 </style>
 </head>
 <body>
 <h1>美妆零售客服 · 风险与人工介入评估器 Demo</h1>
-<div class="sub">发送前安全阀：判定话术推荐回复可直接自动发送、建议人工复核还是必须人工介入 ｜ 版本 v1.2.0</div>
+<div class="sub">发送前安全阀：判定话术推荐回复可直接自动发送、建议人工复核还是必须人工介入 ｜ 版本 v1.3.0（覆盖发货时效/特殊尺寸/价格例外转人工 + 政策出处可追溯）</div>
 
 <div class="grid">
   <div class="card">
@@ -60,6 +67,8 @@
         <input type="text" id="confidence" value="0.92">
       </div>
     </div>
+    <label>政策出处 policy_source（可追溯，如 shipping-policy#SP-01）</label>
+    <input type="text" id="policy_source" placeholder="shipping-policy#SP-01（可选，R13）">
     <div class="checks">
       <label><input type="checkbox" id="promo"> 涉及促销</label>
       <label><input type="checkbox" id="inventory"> 涉及库存</label>
@@ -72,6 +81,11 @@
     <h2>② 快速场景（演示用预设）</h2>
     <div class="presets">
       <button data-preset="normal">正常流程：标准 FAQ → 自动发送（low / no）</button>
+      <button data-preset="ship_faq">正常流程：发货政策 FAQ → 自动发送（low / no）</button>
+      <button data-preset="ship_time">人工介入：发货时效承诺 → 转人工（high / yes，R10）</button>
+      <button data-preset="ship_traceable">人工介入：时效承诺 + 政策出处 → 转人工（high / yes，R13 可追溯）</button>
+      <button data-preset="ship_size">人工介入：特殊尺寸计费 → 转人工（high / yes，R11）</button>
+      <button data-preset="ship_price">人工介入：价格例外/议价 → 转人工（high / yes，R12）</button>
       <button data-preset="promo">人工介入：促销咨询 → 转人工（high / yes）</button>
       <button data-preset="negation">边界场景：否定语境 → 不再误报（low / no）</button>
       <button data-preset="oversize">边界场景：超长输入 → 错误拦截（error）</button>
@@ -80,14 +94,22 @@
       <button data-preset="doubleneg">人工介入：双重否定 → 正确识别为有优惠（high / yes，v1.2.0 修复）</button>
     </div>
     <div class="result" id="result" style="margin-top:20px">
-      <div class="sub">评估结果将显示在右侧</div>
+      <div class="sub">评估结果将显示在此处</div>
     </div>
   </div>
 </div>
 
+<div class="card" style="margin-top:24px">
+  <h2>③ 发货知识库（可追溯政策出处，SP-01~SP-05）</h2>
+  <div class="sub">页面通过 <code>GET /api/kb</code> 查询发货知识库；评估时自动高亮命中当前问题的政策条目。</div>
+  <div class="kb" id="kb"></div>
+</div>
+
 <div class="foot">
-  说明：演示为正常流程与失败/边界场景对照。第一轮（v1.0.0→v1.1.0）修复了「否定语境误报」「超长输入未拦截」「置信度类型错误崩溃」；
-  第二轮（v1.1.0→v1.2.0）新增「退款政策 FAQ 误判投诉」「双重否定误消解」两个修复场景。评测闭环详见《Eval 与项目验收报告》。
+  说明：演示为正常流程与失败/边界场景对照。第一轮（v1.0.0→v1.1.0）修复「否定语境误报」「超长输入未拦截」「置信度类型错误崩溃」；
+  第二轮（v1.1.0→v1.2.0）修复「退款政策 FAQ 误判投诉」「双重否定误消解」；
+  第三轮（v1.2.0→v1.3.0）按约定补齐「发货时效承诺 / 特殊尺寸 / 价格例外转人工」与「政策出处可追溯、无出处不做断言」。
+  评测闭环详见《Eval 与项目验收报告》。
 </div>
 <div class="flash" id="flash"></div>
 
@@ -96,31 +118,51 @@ const $ = id => document.getElementById(id);
 const PRESETS = {
   normal: {
     query: "这款精华液的成分是什么？", answer: "含玻尿酸和烟酰胺，适合油皮，早晚各一次。",
-    category: "护肤", confidence: "0.92", promo: false, inventory: false, medical: false
+    category: "护肤", confidence: "0.92", policy_source: "", promo: false, inventory: false, medical: false
+  },
+  ship_faq: {
+    query: "你们发什么快递？", answer: "默认顺丰，偏远地区发圆通。",
+    category: "其他", confidence: "0.92", policy_source: "shipping-policy#SP-03", promo: false, inventory: false, medical: false
+  },
+  ship_time: {
+    query: "今天下单什么时候发货？", answer: "付款后48小时内发货。",
+    category: "其他", confidence: "0.90", policy_source: "", promo: false, inventory: false, medical: false
+  },
+  ship_traceable: {
+    query: "今天下单什么时候发货？", answer: "付款后48小时内发货。",
+    category: "其他", confidence: "0.90", policy_source: "shipping-policy#SP-01", promo: false, inventory: false, medical: false
+  },
+  ship_size: {
+    query: "超出标准尺寸的件怎么收费？", answer: "超出标准尺寸按体积重计费。",
+    category: "其他", confidence: "0.90", policy_source: "", promo: false, inventory: false, medical: false
+  },
+  ship_price: {
+    query: "能给我一个内部价吗？", answer: "抱歉，价格以页面为准。",
+    category: "护肤", confidence: "0.90", policy_source: "", promo: false, inventory: false, medical: false
   },
   promo: {
     query: "现在买这个面霜有优惠吗？", answer: "目前该面霜参加满300减50活动，截止到本月底。",
-    category: "护肤", confidence: "0.85", promo: true, inventory: false, medical: false
+    category: "护肤", confidence: "0.85", policy_source: "", promo: true, inventory: false, medical: false
   },
   negation: {
     query: "这个精华敏感肌可以用吗？", answer: "本品不含任何医美成分，成分温和，敏感肌可用。",
-    category: "护肤", confidence: "0.90", promo: false, inventory: false, medical: false
+    category: "护肤", confidence: "0.90", policy_source: "", promo: false, inventory: false, medical: false
   },
   oversize: {
     query: "你好".repeat(1300), answer: "谢谢您的咨询。",
-    category: "其他", confidence: "0.95", promo: false, inventory: false, medical: false
+    category: "其他", confidence: "0.95", policy_source: "", promo: false, inventory: false, medical: false
   },
   badconf: {
     query: "你好", answer: "您好，很高兴为您服务！",
-    category: "其他", confidence: "abc", promo: false, inventory: false, medical: false
+    category: "其他", confidence: "abc", policy_source: "", promo: false, inventory: false, medical: false
   },
   refundfaq: {
     query: "你们的售后政策是什么？", answer: "支持7天无理由退款退货，不影响二次销售即可。",
-    category: "其他", confidence: "0.92", promo: false, inventory: false, medical: false
+    category: "其他", confidence: "0.92", policy_source: "", promo: false, inventory: false, medical: false
   },
   doubleneg: {
     query: "这个月店铺有活动吗？", answer: "本品不是没有优惠，全场8折起。",
-    category: "护肤", confidence: "0.85", promo: false, inventory: false, medical: false
+    category: "护肤", confidence: "0.85", policy_source: "", promo: false, inventory: false, medical: false
   }
 };
 const LEVEL_META = {
@@ -132,7 +174,11 @@ const LEVEL_META = {
 const HUMAN_META = {
   no: "可自动发送（无需人工）", recommended: "建议人工复核", yes: "必须人工确认后发送", error: "输入无效"
 };
+let KB = [];
 
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
 function flash(msg) {
   const f = $("flash"); f.textContent = msg; f.style.opacity = 1;
   setTimeout(() => f.style.opacity = 0, 2000);
@@ -140,7 +186,31 @@ function flash(msg) {
 function fillPreset(p) {
   $("query").value = p.query; $("answer").value = p.answer;
   $("category").value = p.category; $("confidence").value = p.confidence;
+  $("policy_source").value = p.policy_source || "";
   $("promo").checked = p.promo; $("inventory").checked = p.inventory; $("medical").checked = p.medical;
+}
+async function loadKB() {
+  try {
+    const resp = await fetch("/api/kb");
+    const data = await resp.json();
+    KB = data.kb || [];
+    renderKB();
+  } catch (e) { /* demo 直开文件时忽略 */ }
+}
+function kbMatches(query) {
+  if (!KB.length || !query) return [];
+  return KB.filter(e => (e.keywords || []).some(k => query.includes(k)));
+}
+function renderKB(hitIds) {
+  hitIds = hitIds || [];
+  $("kb").innerHTML = KB.map(e => {
+    const hit = hitIds.includes(e.id);
+    const kws = (e.keywords || []).map(k => `<span class="kw">${esc(k)}</span>`).join(" ");
+    return `<div class="item${hit ? " hit" : ""}">
+      <b>${esc(e.id)} ${esc(e.title)}</b> <span class="tag ${e.auto === "yes" ? "yes" : "no"}">${e.auto === "yes" ? "可自动" : "转人工"}</span><br>
+      ${esc(e.policy)}<br><span class="kw">关键词：${kws || "—"}</span>
+    </div>`;
+  }).join("");
 }
 document.querySelectorAll("[data-preset]").forEach(btn => {
   btn.addEventListener("click", () => { fillPreset(PRESETS[btn.dataset.preset]); flash("已载入预设：" + btn.textContent.trim().split("：")[0]); });
@@ -155,32 +225,37 @@ async function run() {
       involves_promotion: $("promo").checked,
       involves_inventory: $("inventory").checked,
       involves_medical_claim: $("medical").checked,
-      match_confidence: $("confidence").value === "" ? null : Number($("confidence").value)
+      match_confidence: $("confidence").value === "" ? null : Number($("confidence").value),
+      policy_source: $("policy_source").value.trim() || null
     }
   };
+  renderKB(kbMatches(payload.query).map(e => e.id));
   $("result").innerHTML = '<div class="sub">评估中…</div>';
   let resp;
   try {
     resp = await fetch("/api/evaluate", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(payload)});
     const data = await resp.json();
-    if (!data.ok) { $("result").innerHTML = `<div class="sub">服务异常：${data.error}</div>`; return; }
+    if (!data.ok) { $("result").innerHTML = `<div class="sub">服务异常：${esc(data.error)}</div>`; return; }
     const r = data.result;
     const meta = LEVEL_META[r.risk_level] || LEVEL_META.error;
-    const factors = (r.risk_factors || []).map(f => `<li>${f}</li>`).join("");
+    const factors = (r.risk_factors || []).map(f => `<li>${esc(f)}</li>`).join("");
+    const src = r.policy_source ? esc(r.policy_source) : "未提供";
     $("result").innerHTML = `
       <span class="badge ${meta.cls}">${meta.label}</span>
       <div class="kv">
-        <div><b>人工介入：</b>${HUMAN_META[r.human_required] || r.human_required}</div>
+        <div><b>人工介入：</b>${esc(HUMAN_META[r.human_required] || r.human_required)}</div>
         <div><b>置信度充足：</b>${r.confidence_sufficient ? "是" : "否"}</div>
+        <div><b>政策出处：</b>${src} ｜ <b>可追溯：</b>${r.policy_traceable ? "是" : "否"}</div>
       </div>
       <div class="factors"><b>风险因素：</b><ul>${factors || "<li>无</li>"}</ul></div>
-      <div class="reason"><b>决策理由：</b>${r.reason}</div>`;
+      <div class="reason"><b>决策理由：</b>${esc(r.reason)}</div>`;
   } catch (e) {
-    $("result").innerHTML = `<div class="sub">请求失败：${e.message}</div>`;
+    $("result").innerHTML = `<div class="sub">请求失败：${esc(e.message)}</div>`;
   }
 }
 $("run").addEventListener("click", run);
 fillPreset(PRESETS.normal);
+loadKB();
 </script>
 </body>
 </html>

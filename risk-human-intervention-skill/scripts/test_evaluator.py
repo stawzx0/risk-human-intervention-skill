@@ -1,7 +1,7 @@
 ﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Test Suite 风险与人工介入评估器（完整回归套件，v1.2.0）
+Test Suite 风险与人工介入评估器（完整回归套件，v1.3.0）
 - 覆盖：正常、人工介入(促销/库存/医疗/投诉/母婴)、置信度边界、无效输入、系统异常、否定语境、权限(不越权)
 - 运行：python scripts/test_evaluator.py
 - 依赖：仅标准库
@@ -162,6 +162,80 @@ class TestRiskEvaluator(unittest.TestCase):
         self._assert_risk(
             "你好", "系统正在为您处理退款。",
             {"product_category": "其他", "match_confidence": 0.9}, "high", "yes", "answer非政策声明")
+
+    # ---- v1.3.0：发货/物流时效承诺（R10，与评测集 N-05/N-24/N-25 对齐）----
+    def test_25_shipping_time_commitment_high(self):
+        r = self._assert_risk(
+            "今天下单什么时候发货？", "付款后48小时内发货。",
+            {"product_category": "其他", "match_confidence": 0.9},
+            "high", "yes", "发货时效承诺(48小时)")
+        self.assertIn("时效承诺", "".join(r["risk_factors"]), "应命中 R10 时效承诺")
+        self.assertIn("政策出处缺失", "".join(r["risk_factors"]), "无出处应追加 R13 风险因素")
+
+    def test_26_shipping_next_day_high(self):
+        self._assert_risk(
+            "多久能送到？", "顺丰次日达。",
+            {"product_category": "其他", "match_confidence": 0.9},
+            "high", "yes", "快递时效承诺(次日达)")
+
+    def test_27_shipping_policy_faq_low(self):
+        self._assert_risk(
+            "你们发什么快递？", "默认顺丰，偏远地区发圆通。",
+            {"product_category": "其他", "match_confidence": 0.9},
+            "low", "no", "发货政策FAQ(非承诺)")
+        self._assert_risk(
+            "运费怎么收？", "满99元包邮，不满收12元运费。",
+            {"product_category": "其他", "match_confidence": 0.9},
+            "low", "no", "运费政策FAQ(非例外)")
+
+    # ---- v1.3.0：特殊尺寸/大件（R11）----
+    def test_28_special_size_high(self):
+        r = self._assert_risk(
+            "超出标准尺寸的件怎么收费？", "超出标准尺寸按体积重计费。",
+            {"product_category": "其他", "match_confidence": 0.9},
+            "high", "yes", "特殊尺寸计费")
+        self.assertIn("特殊尺寸", "".join(r["risk_factors"]), "应命中 R11")
+
+    def test_29_oversize_package_high(self):
+        self._assert_risk(
+            "我的包裹超重了怎么办？", "超重包裹需补运费，具体以快递公司为准。",
+            {"product_category": "其他", "match_confidence": 0.9},
+            "high", "yes", "超重包裹")
+
+    # ---- v1.3.0：价格例外/议价（R12）----
+    def test_30_price_exception_high(self):
+        r = self._assert_risk(
+            "为什么我买的比别人贵？可以补差价吗？", "不同订单优惠不同，无法补差价。",
+            {"product_category": "护肤", "match_confidence": 0.9},
+            "high", "yes", "价格例外(补差价)")
+        self.assertIn("价格例外", "".join(r["risk_factors"]), "应命中 R12")
+
+    def test_31_negotiation_high(self):
+        self._assert_risk(
+            "能给我一个内部价吗？", "抱歉，价格以页面为准。",
+            {"product_category": "护肤", "match_confidence": 0.9},
+            "high", "yes", "议价(query侧)")
+
+    def test_32_price_policy_faq_low(self):
+        self._assert_risk(
+            "价格以哪里为准？", "价格以官网页面为准。",
+            {"product_category": "其他", "match_confidence": 0.9},
+            "low", "no", "价格政策FAQ(非例外，R12 不误报)")
+
+    # ---- v1.3.0：政策出处（R13 可追溯性）----
+    def test_33_policy_source_traceable(self):
+        r = evaluate_risk(
+            "今天下单什么时候发货？", "付款后48小时内发货。",
+            {"product_category": "其他", "match_confidence": 0.9, "policy_source": "shipping-policy#SP-01"})
+        self.assertEqual(r["risk_level"], "high", f"承诺仍需人工: {r}")
+        self.assertTrue(r["policy_traceable"], "提供出处应可追溯")
+        self.assertIn("政策出处：shipping-policy#SP-01", "".join(r["risk_factors"]), "应回显出处")
+
+    def test_34_policy_source_invalid_type_error(self):
+        self._assert_risk(
+            "你好", "您好！",
+            {"product_category": "其他", "match_confidence": 0.9, "policy_source": 123},
+            "error", "error", "policy_source 非字符串")
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

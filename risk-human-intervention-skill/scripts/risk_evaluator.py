@@ -3,7 +3,17 @@
 Risk & Human Intervention Evaluator 路 风险与人工介入评估器
 Assess whether a knowledge-base response needs human review before sending.
 
-Version: 1.2.0
+Version: 1.3.0
+Changes vs 1.2.0 (2026-08-01, eval loop iteration 3 - requirement coverage):
+  - 规则引擎层: 新增 R10 发货/物流时效承诺、R11 特殊尺寸/大件、R12 价格例外/议价
+      * 时效承诺（次日达/48小时/什么时候发货/预计送达等）一律转人工，不再自动发送
+      * 特殊尺寸/超重/大件计费一律转人工
+      * 议价/差价/内部价等价格例外一律转人工；纯价格政策 FAQ（价格以页面为准）不误报
+  - 规则引擎层: 新增 R13 政策出处校验（context.policy_source）
+      * 承诺/宣称类内容无政策出处时追加风险因素，禁止自动断言（只根据可追溯政策回答）
+      * 输出新增 policy_source / policy_traceable 字段，供人工核验与留痕
+  - 原 N-05「快递时效 FAQ(顺丰次日达)」按约定修正为 high/yes（时效承诺不自动发送）
+
 Changes vs 1.1.0 (2026-08-01, eval loop iteration 2):
   - 规则引擎层: 否定消解升级为“分句 + 否定计数”制
       * 修复多关键词顿号分隔列表（“不含任何美白、祛斑成分”不再误报）
@@ -28,6 +38,17 @@ HIGH_RISK_KEYWORDS = {
     "medical": ["美白", "祛斑", "抗皱", "治疗", "消炎", "药妆", "医美",
                 "防晒功效", "防晒指数", "防晒倍数", "防晒效果", "防晒力", "SPF", "spf"],
     "complaint": ["投诉", "差评", "维权", "不良反应", "过敏"],
+    "shipping_time": ["时效", "次日达", "当天达", "当日达", "隔日达", "半日达",
+                      "多久能到", "多久送到", "多久发货", "多久到", "几天能到", "几天送到",
+                      "几天发货", "几天到", "什么时候到", "什么时候能到", "什么时候送到",
+                      "什么时候发货", "什么时候能发", "预计送达", "预计到达", "送达时间",
+                      "发货时间", "发货时效", "配送时间", "派送时间", "48小时", "24小时",
+                      "72小时", "工作日", "明天送达", "明天送到", "今天送达", "今天送到", "加急"],
+    "special_size": ["尺寸", "超长", "超宽", "超高", "超重", "大件", "异形",
+                     "体积重", "体积重量", "特殊规格", "特殊尺寸", "非标", "易碎"],
+    "price_exception": ["议价", "还价", "便宜点", "优惠点", "打折吗", "补差价", "差价",
+                        "买贵", "贵了", "内部价", "员工价", "专属价", "特殊价格",
+                        "例外价", "价格不符", "价格不对", "多收", "少收"],
 }
 COMPLAINT_REFUND_KEYWORDS = ["退款", "退货"]
 
@@ -113,6 +134,9 @@ def _validate(query, answer, context):
     confidence = context.get("match_confidence", 0.0)
     if isinstance(confidence, bool) or not isinstance(confidence, (int, float)):
         return _error("置信度参数不合法", f"confidence 值 {confidence!r} 必须为数值"), None
+    ps = context.get("policy_source")
+    if ps is not None and not isinstance(ps, str):
+        return _error("context 不合法", "policy_source 必须为字符串"), None
     if not (0.0 <= confidence <= 1.0):
         return _error("置信度参数不合法", f"confidence 值 {confidence} 不在 0-1 范围内"), None
     return None, context
@@ -167,6 +191,18 @@ def evaluate_risk(
     if _has_complaint_risk(query, answer):
         risk_factors.append("涉及投诉/纠纷，需升级处理")
 
+    # R10: 发货/物流时效承诺
+    if _has_risk_keyword(query, answer, HIGH_RISK_KEYWORDS["shipping_time"]):
+        risk_factors.append("涉及发货/物流时效承诺，需人工确认")
+
+    # R11: 特殊尺寸/大件
+    if _has_risk_keyword(query, answer, HIGH_RISK_KEYWORDS["special_size"]):
+        risk_factors.append("涉及特殊尺寸/大件运输，需人工确认")
+
+    # R12: 价格例外/议价
+    if _has_risk_keyword(query, answer, HIGH_RISK_KEYWORDS["price_exception"]):
+        risk_factors.append("涉及价格例外/议价，需人工确认")
+
     conf_sufficient = confidence >= 0.8
 
     # ---- Decision Logic ----
@@ -177,35 +213,54 @@ def evaluate_risk(
     has_inv = ctx.get("involves_inventory", False) or _has_risk_keyword(query, answer, HIGH_RISK_KEYWORDS["inventory"])
     has_med = ctx.get("involves_medical_claim", False) or _has_risk_keyword(query, answer, HIGH_RISK_KEYWORDS["medical"])
     has_complaint = _has_complaint_risk(query, answer)
+    has_ship_time = _has_risk_keyword(query, answer, HIGH_RISK_KEYWORDS["shipping_time"])
+    has_special_size = _has_risk_keyword(query, answer, HIGH_RISK_KEYWORDS["special_size"])
+    has_price_exc = _has_risk_keyword(query, answer, HIGH_RISK_KEYWORDS["price_exception"])
 
-    is_high_risk = sensitive or has_promo or has_inv or has_med or has_complaint
+    is_high_risk = sensitive or has_promo or has_inv or has_med or has_complaint or has_ship_time or has_special_size or has_price_exc
+
+    # R13: 政策出处校验（只根据可追溯政策回答，规则之外不做断言）
+    policy_source = ctx.get("policy_source")
+    commitment_hit = has_promo or has_inv or has_med or has_ship_time or has_special_size or has_price_exc
+    if commitment_hit:
+        if not policy_source:
+            risk_factors.append("政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复")
+        else:
+            risk_factors.append(f"政策出处：{policy_source}（供人工核验，仍需确认后发送）")
 
     if not risk_factors:
         risk_factors.append("未检测到高风险内容")
+
+    base = {"policy_source": policy_source,
+            "policy_traceable": bool(policy_source)}
 
     if is_high_risk:
         return {"risk_level": "high", "human_required": "yes",
                 "risk_factors": risk_factors,
                 "confidence_sufficient": conf_sufficient,
-                "reason": "检测到高风险因素，必须人工确认后发送"}
+                "reason": "检测到高风险因素，必须人工确认后发送",
+                **base}
     if confidence < 0.6:
         reason = (f"置信度({confidence:.2f})较低，建议人工确认"
                   if conf_provided else "未提供置信度，按保守策略建议人工复核")
         return {"risk_level": "medium", "human_required": "recommended",
                 "risk_factors": risk_factors,
                 "confidence_sufficient": False,
-                "reason": reason}
+                "reason": reason,
+                **base}
     if confidence < 0.8:
         reason = (f"置信度({confidence:.2f})不足，建议人工复核"
                   if conf_provided else "未提供置信度，按保守策略建议人工复核")
         return {"risk_level": "medium", "human_required": "recommended",
                 "risk_factors": risk_factors,
                 "confidence_sufficient": False,
-                "reason": reason}
+                "reason": reason,
+                **base}
     return {"risk_level": "low", "human_required": "no",
             "risk_factors": risk_factors,
             "confidence_sufficient": True,
-            "reason": "标准FAQ，置信度充足，可自动发送"}
+            "reason": "标准FAQ，置信度充足，可自动发送",
+            **base}
 
 
 # ---- CLI ----

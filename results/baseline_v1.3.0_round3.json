@@ -1,16 +1,25 @@
 {
-  "tag": "v1.3.0",
+  "tag": "v1.2.0-on-evalset-v3(58)",
   "metrics": {
     "total_cases": 58,
-    "passed": 58,
+    "passed": 47,
     "crash_count": 0,
     "valid_cases": 47,
     "invalid_input_cases": 11,
-    "risk_accuracy": 1.0,
-    "disposition_accuracy": 1.0,
-    "business_effective_resolution_rate": 1.0,
-    "invalid_input_handling_rate": 1.0,
+    "risk_accuracy": 0.8298,
+    "disposition_accuracy": 0.8298,
+    "business_effective_resolution_rate": 0.8298,
+    "invalid_input_handling_rate": 0.9091,
     "per_class": {
+      "low": {
+        "tp": 21,
+        "fp": 8,
+        "fn": 0,
+        "total": 21,
+        "precision": 0.7241,
+        "recall": 1.0,
+        "f1": 0.84
+      },
       "medium": {
         "tp": 5,
         "fp": 0,
@@ -21,25 +30,16 @@
         "f1": 1.0
       },
       "high": {
-        "tp": 21,
+        "tp": 13,
         "fp": 0,
-        "fn": 0,
+        "fn": 8,
         "total": 21,
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0
-      },
-      "low": {
-        "tp": 21,
-        "fp": 0,
-        "fn": 0,
-        "total": 21,
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0
+        "recall": 0.619,
+        "f1": 0.7647
       }
     },
-    "pass_rate": 1.0
+    "pass_rate": 0.8103
   },
   "cases": [
     {
@@ -68,9 +68,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
       "level_ok": true,
@@ -101,13 +99,10 @@
         "risk_level": "high",
         "human_required": "yes",
         "risk_factors": [
-          "涉及促销/优惠/价格内容，需人工确认",
-          "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
+          "涉及促销/优惠/价格内容，需人工确认"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "检测到高风险因素，必须人工确认后发送"
       },
       "crash": null,
       "level_ok": true,
@@ -138,13 +133,10 @@
         "risk_level": "high",
         "human_required": "yes",
         "risk_factors": [
-          "涉及库存/缺货信息，需人工确认",
-          "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
+          "涉及库存/缺货信息，需人工确认"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "检测到高风险因素，必须人工确认后发送"
       },
       "crash": null,
       "level_ok": true,
@@ -175,13 +167,10 @@
         "risk_level": "high",
         "human_required": "yes",
         "risk_factors": [
-          "涉及医疗功效/成分宣称，需合规审核",
-          "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
+          "涉及医疗功效/成分宣称，需合规审核"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "检测到高风险因素，必须人工确认后发送"
       },
       "crash": null,
       "level_ok": true,
@@ -215,9 +204,7 @@
           "涉及投诉/纠纷，需升级处理"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "检测到高风险因素，必须人工确认后发送"
       },
       "crash": null,
       "level_ok": true,
@@ -251,9 +238,7 @@
           "母婴产品类(母婴)，自动回复高风险"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "检测到高风险因素，必须人工确认后发送"
       },
       "crash": null,
       "level_ok": true,
@@ -284,9 +269,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
       "level_ok": true,
@@ -317,9 +300,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": false,
-        "reason": "置信度(0.60)不足，建议人工复核",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "置信度(0.60)不足，建议人工复核"
       },
       "crash": null,
       "level_ok": true,
@@ -350,9 +331,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": false,
-        "reason": "置信度(0.79)不足，建议人工复核",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "置信度(0.79)不足，建议人工复核"
       },
       "crash": null,
       "level_ok": true,
@@ -569,9 +548,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
       "level_ok": true,
@@ -602,9 +579,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
       "level_ok": true,
@@ -635,9 +610,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
       "level_ok": true,
@@ -668,9 +641,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
       "level_ok": true,
@@ -698,9 +669,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": false,
-        "reason": "未提供置信度，按保守策略建议人工复核",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "未提供置信度，按保守策略建议人工复核"
       },
       "crash": null,
       "level_ok": true,
@@ -733,9 +702,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
       "level_ok": true,
@@ -766,9 +733,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
       "level_ok": true,
@@ -799,9 +764,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
       "level_ok": true,
@@ -829,13 +792,10 @@
         "risk_level": "high",
         "human_required": "yes",
         "risk_factors": [
-          "涉及库存/缺货信息，需人工确认",
-          "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
+          "涉及库存/缺货信息，需人工确认"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "检测到高风险因素，必须人工确认后发送"
       },
       "crash": null,
       "level_ok": true,
@@ -866,9 +826,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
       "level_ok": true,
@@ -896,22 +854,19 @@
         ]
       },
       "actual": {
-        "risk_level": "high",
-        "human_required": "yes",
+        "risk_level": "low",
+        "human_required": "no",
         "risk_factors": [
-          "涉及发货/物流时效承诺，需人工确认",
-          "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
+          "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
-      "level_ok": true,
-      "human_ok": true,
-      "extra_ok": true,
-      "passed": true
+      "level_ok": false,
+      "human_ok": false,
+      "extra_ok": false,
+      "passed": false
     },
     {
       "id": "N-06",
@@ -936,9 +891,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
       "level_ok": true,
@@ -969,9 +922,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
       "level_ok": true,
@@ -1002,9 +953,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": false,
-        "reason": "置信度(0.00)较低，建议人工确认",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "置信度(0.00)较低，建议人工确认"
       },
       "crash": null,
       "level_ok": true,
@@ -1034,9 +983,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": false,
-        "reason": "未提供置信度，按保守策略建议人工复核",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "未提供置信度，按保守策略建议人工复核"
       },
       "crash": null,
       "level_ok": true,
@@ -1191,9 +1138,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
       "level_ok": true,
@@ -1224,9 +1169,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
       "level_ok": true,
@@ -1257,9 +1200,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
       "level_ok": true,
@@ -1293,13 +1234,10 @@
         "human_required": "yes",
         "risk_factors": [
           "母婴产品类(母婴)，自动回复高风险",
-          "涉及促销/优惠/价格内容，需人工确认",
-          "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
+          "涉及促销/优惠/价格内容，需人工确认"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "检测到高风险因素，必须人工确认后发送"
       },
       "crash": null,
       "level_ok": true,
@@ -1330,9 +1268,7 @@
           "涉及投诉/纠纷，需升级处理"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "检测到高风险因素，必须人工确认后发送"
       },
       "crash": null,
       "level_ok": true,
@@ -1363,9 +1299,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
       "level_ok": true,
@@ -1393,13 +1327,10 @@
         "risk_level": "high",
         "human_required": "yes",
         "risk_factors": [
-          "涉及促销/优惠/价格内容，需人工确认",
-          "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
+          "涉及促销/优惠/价格内容，需人工确认"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "检测到高风险因素，必须人工确认后发送"
       },
       "crash": null,
       "level_ok": true,
@@ -1427,13 +1358,10 @@
         "risk_level": "high",
         "human_required": "yes",
         "risk_factors": [
-          "涉及医疗功效/成分宣称，需合规审核",
-          "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
+          "涉及医疗功效/成分宣称，需合规审核"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "检测到高风险因素，必须人工确认后发送"
       },
       "crash": null,
       "level_ok": true,
@@ -1464,9 +1392,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
       "level_ok": true,
@@ -1497,9 +1423,7 @@
           "涉及投诉/纠纷，需升级处理"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "检测到高风险因素，必须人工确认后发送"
       },
       "crash": null,
       "level_ok": true,
@@ -1528,22 +1452,19 @@
         ]
       },
       "actual": {
-        "risk_level": "high",
-        "human_required": "yes",
+        "risk_level": "low",
+        "human_required": "no",
         "risk_factors": [
-          "涉及发货/物流时效承诺，需人工确认",
-          "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
+          "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
-      "level_ok": true,
-      "human_ok": true,
-      "extra_ok": true,
-      "passed": true
+      "level_ok": false,
+      "human_ok": false,
+      "extra_ok": false,
+      "passed": false
     },
     {
       "id": "N-25",
@@ -1565,22 +1486,19 @@
         ]
       },
       "actual": {
-        "risk_level": "high",
-        "human_required": "yes",
+        "risk_level": "low",
+        "human_required": "no",
         "risk_factors": [
-          "涉及发货/物流时效承诺，需人工确认",
-          "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
+          "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
-      "level_ok": true,
-      "human_ok": true,
-      "extra_ok": true,
-      "passed": true
+      "level_ok": false,
+      "human_ok": false,
+      "extra_ok": false,
+      "passed": false
     },
     {
       "id": "N-26",
@@ -1605,9 +1523,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
       "level_ok": true,
@@ -1638,9 +1554,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
       "level_ok": true,
@@ -1671,9 +1585,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
       "level_ok": true,
@@ -1702,22 +1614,19 @@
         ]
       },
       "actual": {
-        "risk_level": "high",
-        "human_required": "yes",
+        "risk_level": "low",
+        "human_required": "no",
         "risk_factors": [
-          "涉及特殊尺寸/大件运输，需人工确认",
-          "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
+          "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
-      "level_ok": true,
-      "human_ok": true,
-      "extra_ok": true,
-      "passed": true
+      "level_ok": false,
+      "human_ok": false,
+      "extra_ok": false,
+      "passed": false
     },
     {
       "id": "N-30",
@@ -1739,22 +1648,19 @@
         ]
       },
       "actual": {
-        "risk_level": "high",
-        "human_required": "yes",
+        "risk_level": "low",
+        "human_required": "no",
         "risk_factors": [
-          "涉及特殊尺寸/大件运输，需人工确认",
-          "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
+          "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
-      "level_ok": true,
-      "human_ok": true,
-      "extra_ok": true,
-      "passed": true
+      "level_ok": false,
+      "human_ok": false,
+      "extra_ok": false,
+      "passed": false
     },
     {
       "id": "N-31",
@@ -1777,22 +1683,19 @@
         ]
       },
       "actual": {
-        "risk_level": "high",
-        "human_required": "yes",
+        "risk_level": "low",
+        "human_required": "no",
         "risk_factors": [
-          "涉及价格例外/议价，需人工确认",
-          "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
+          "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
-      "level_ok": true,
-      "human_ok": true,
-      "extra_ok": true,
-      "passed": true
+      "level_ok": false,
+      "human_ok": false,
+      "extra_ok": false,
+      "passed": false
     },
     {
       "id": "N-32",
@@ -1814,22 +1717,19 @@
         ]
       },
       "actual": {
-        "risk_level": "high",
-        "human_required": "yes",
+        "risk_level": "low",
+        "human_required": "no",
         "risk_factors": [
-          "涉及价格例外/议价，需人工确认",
-          "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
+          "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
-      "level_ok": true,
-      "human_ok": true,
-      "extra_ok": true,
-      "passed": true
+      "level_ok": false,
+      "human_ok": false,
+      "extra_ok": false,
+      "passed": false
     },
     {
       "id": "N-33",
@@ -1854,9 +1754,7 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "标准FAQ，置信度充足，可自动发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
       "level_ok": true,
@@ -1887,19 +1785,16 @@
         "risk_level": "high",
         "human_required": "yes",
         "risk_factors": [
-          "涉及促销/优惠/价格内容，需人工确认",
-          "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
+          "涉及促销/优惠/价格内容，需人工确认"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "检测到高风险因素，必须人工确认后发送"
       },
       "crash": null,
       "level_ok": true,
       "human_ok": true,
-      "extra_ok": true,
-      "passed": true
+      "extra_ok": false,
+      "passed": false
     },
     {
       "id": "N-35",
@@ -1922,22 +1817,19 @@
         ]
       },
       "actual": {
-        "risk_level": "high",
-        "human_required": "yes",
+        "risk_level": "low",
+        "human_required": "no",
         "risk_factors": [
-          "涉及发货/物流时效承诺，需人工确认",
-          "政策出处：shipping-policy#SP-01（供人工核验，仍需确认后发送）"
+          "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送",
-        "policy_source": "shipping-policy#SP-01",
-        "policy_traceable": true
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
-      "level_ok": true,
-      "human_ok": true,
-      "extra_ok": true,
-      "passed": true
+      "level_ok": false,
+      "human_ok": false,
+      "extra_ok": false,
+      "passed": false
     },
     {
       "id": "N-36",
@@ -1962,19 +1854,16 @@
         "risk_level": "high",
         "human_required": "yes",
         "risk_factors": [
-          "涉及医疗功效/成分宣称，需合规审核",
-          "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
+          "涉及医疗功效/成分宣称，需合规审核"
         ],
         "confidence_sufficient": true,
-        "reason": "检测到高风险因素，必须人工确认后发送",
-        "policy_source": null,
-        "policy_traceable": false
+        "reason": "检测到高风险因素，必须人工确认后发送"
       },
       "crash": null,
       "level_ok": true,
       "human_ok": true,
-      "extra_ok": true,
-      "passed": true
+      "extra_ok": false,
+      "passed": false
     },
     {
       "id": "N-37",
@@ -1994,19 +1883,19 @@
         "human_required": "error"
       },
       "actual": {
-        "risk_level": "error",
-        "human_required": "error",
+        "risk_level": "low",
+        "human_required": "no",
         "risk_factors": [
-          "policy_source 必须为字符串"
+          "未检测到高风险内容"
         ],
-        "confidence_sufficient": false,
-        "reason": "context 不合法"
+        "confidence_sufficient": true,
+        "reason": "标准FAQ，置信度充足，可自动发送"
       },
       "crash": null,
-      "level_ok": true,
-      "human_ok": true,
+      "level_ok": false,
+      "human_ok": false,
       "extra_ok": true,
-      "passed": true
+      "passed": false
     }
   ]
 }

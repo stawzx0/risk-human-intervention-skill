@@ -1,6 +1,6 @@
 ﻿---
 name: risk-human-intervention
-description: Evaluate whether customer service knowledge base responses in beauty retail require human intervention. Use when: (1) assessing risk in automated customer service answers, (2) determining whether human review is needed before sending a response, (3) validating knowledge base response safety, (4) auditing or testing a knowledge base system risk classification logic.
+description: Evaluate whether customer service knowledge base responses in beauty retail (including shipping/logistics questions) require human intervention. Use when: (1) assessing risk in automated customer service answers, (2) determining whether human review is needed before sending a response, (3) validating knowledge base response safety, (4) auditing or testing a knowledge base system risk classification logic.
 ---
 
 # Risk & Human Intervention 风险与人工介入评估
@@ -18,7 +18,8 @@ Evaluate whether a knowledge-base-suggested response can be sent automatically o
     "involves_promotion": "bool, 可选",
     "involves_inventory": "bool, 可选",
     "involves_medical_claim": "bool, 可选",
-    "match_confidence": "number 0-1, 可选；缺失时按保守策略处理（R9）"
+    "match_confidence": "number 0-1, 可选；缺失时按保守策略处理（R9）",
+    "policy_source": "string|null, 可选；可追溯政策出处（如 shipping-policy#SP-01），承诺/宣称类内容建议必填（R13）"
   }
 }
 ```
@@ -31,7 +32,9 @@ Evaluate whether a knowledge-base-suggested response can be sent automatically o
   "human_required": "no | recommended | yes | error",
   "risk_factors": ["风险因素说明"],
   "confidence_sufficient": "bool",
-  "reason": "决策理由"
+  "reason": "决策理由",
+  "policy_source": "string|null，回显输入出处",
+  "policy_traceable": "bool，承诺/宣称类内容是否带有可追溯政策出处"
 }
 ```
 
@@ -50,8 +53,22 @@ Evaluate whether a knowledge-base-suggested response can be sent automatically o
 | R7 | 置信度 0.6-0.8 且无敏感内容 | medium | recommended |
 | R8 | 母婴产品相关（品类含母婴/育儿/婴儿/孕妇，无论置信度） | high | yes |
 | R9 | 未提供 match_confidence（上下文缺失/缺字段） | medium | recommended |
+| R10 | 涉及发货/物流时效承诺（时效、次日达、48小时、什么时候发货/送到、预计送达、工作日等，query 或 answer 命中） | high | yes |
+| R11 | 涉及特殊尺寸/大件（尺寸、超长/超重、体积重、异形、特殊规格等） | high | yes |
+| R12 | 涉及价格例外/议价（议价、还价、补差价、买贵、内部价、员工价等；纯价格政策 FAQ 如“价格以页面为准”不触发） | high | yes |
+| R13 | 承诺/宣称类内容（R1/R2/R3/R10/R11/R12 命中）的**政策出处校验**：未提供 policy_source 时追加风险因素“政策出处缺失，禁止自动断言”；提供时回显出处供人工核验 | 不改变等级 | 承诺仍须人工 |
 
-优先级: 敏感规则(R1-R4/R8) > 置信度规则(R6-R7/R9) > 正常(R5)
+优先级: 敏感规则(R1-R4/R8/R10-R12) > 置信度规则(R6-R7/R9) > 正常(R5)
+
+### v1.3.0 规则细节（发货/物流时效承诺 + 特殊尺寸 + 价格例外 + 政策出处）
+
+- **R10 发货/物流时效承诺**：时效承诺类关键词（时效、次日达/当天达/隔日达、48/24/72小时、什么时候发货/能到/送到、预计送达、X个工作日、明天送达等）query 或 answer 命中即触发 high。
+  - 例：`多久能送到？→ 顺丰次日达。` → high/yes（v1.2.0 误判 low，按约定修正：时效承诺不自动发送）。
+  - 政策口径 FAQ 不触发：`你们发什么快递？→ 默认顺丰，偏远地区发圆通。`、`运费怎么收？→ 满99元包邮` → low/no。
+- **R11 特殊尺寸/大件**：尺寸、超长/超宽/超高/超重、大件、异形、体积重、特殊规格等 → high/yes（如“超出标准尺寸的件怎么收费”）。
+- **R12 价格例外/议价**：议价、还价、便宜点、补差价、差价、买贵、内部价/员工价/专属价、价格不符/不对等 → high/yes；纯价格政策 FAQ（“价格以官网页面为准”）不误报。
+- **R13 政策出处（可追溯性）**：承诺/宣称类内容（促销/库存/医疗/时效/尺寸/价格例外任一命中）必须能追溯到政策出处。context 提供 `policy_source` 时输出回显出处（`policy_traceable=true`）供人工核验；未提供时追加风险因素“政策出处缺失，禁止自动断言”。**规则之外的内容不做断言**：所有承诺一律转人工，评估器不自动放行无出处的承诺/宣称。
+- 发货知识库见 `references/shipping-policy.md`（SP-01~SP-05 政策条目，可作 policy_source 引用）。
 
 ### v1.2.0 规则细节（分句否定消解 + 投诉政策 FAQ 消解）
 
@@ -68,7 +85,8 @@ Evaluate whether a knowledge-base-suggested response can be sent automatically o
 
 ## Boundaries
 
-- **领域**: 美妆零售客服，不适用于医疗/金融/法律
+- **领域**: 美妆零售客服（含发货/物流咨询），不适用于医疗/金融/法律
+- **发货知识库**: 政策条目见 `references/shipping-policy.md`（SP-01~SP-05），可追溯出处（policy_source）供人工核验；评估器不做知识库检索
 - **语言**: 中文为主（英文关键词如 SPF 也覆盖）
 - **输入限制**: query + answer 合计 <= 2000 字（超限返回 error，v1.1.0 起强制校验）
 - **不做什么**: 不生成新回复，不修改 answer，不执行自动发送，不输出客户敏感信息（评估结果只含规则判定文本）
@@ -151,6 +169,26 @@ answer: `支持7天无理由退款退货，商品不影响二次销售即可。`
 context: `{product_category: 护肤, match_confidence: 0.9}`
 结果: `low / no`（v1.1.0 误判为投诉 high；v1.2.0 识别为政策声明）
 
+### Example 6 — 发货时效承诺（v1.3.0，high/yes）
+
+query: `今天下单什么时候发货？`
+answer: `付款后48小时内发货。`
+context: `{product_category: 其他, match_confidence: 0.9}`
+结果: `high / yes`，风险因素含“发货/物流时效承诺”与“政策出处缺失”（R10+R13）
+
+### Example 7 — 特殊尺寸/价格例外（v1.3.0，high/yes）
+
+query: `超出标准尺寸的件怎么收费？` / `能给我一个内部价吗？`
+answer: `超出标准尺寸按体积重计费。` / `抱歉，价格以页面为准。`
+结果: `high / yes`（R11 / R12）；而 `价格以官网页面为准。` 不误报 → low/no
+
+### Example 8 — 可追溯政策出处（v1.3.0）
+
+query: `今天下单什么时候发货？`
+answer: `付款后48小时内发货。`
+context: `{product_category: 其他, match_confidence: 0.9, policy_source: "shipping-policy#SP-01"}`
+结果: `high / yes`，`policy_traceable: true`，风险因素回显出处供人工核验
+
 ### Example 5 — 双重否定（v1.2.0，high/yes）
 
 query: `这次618是不是没有优惠了？`
@@ -160,6 +198,7 @@ context: `{product_category: 护肤, involves_promotion: false, match_confidence
 
 ## Version
 
+- v1.3.0（2026-08-01，评测第三轮·需求覆盖核验）：新增 R10 发货/物流时效承诺、R11 特殊尺寸/大件、R12 价格例外/议价、R13 政策出处校验（policy_source）；按约定修正“快递时效 FAQ(次日达)”为转人工；评测集扩至 58 条
 - v1.2.0（2026-08-01，评测第二轮）：否定消解升级为分句+否定计数（修复顿号列表漏判与双重否定误消解）、投诉词表分离 + 退款政策 FAQ 消解
 - v1.1.0（2026-08-01）：输入校验（类型/空值/2000 字边界）、否定语境消解、medical 词表精修、error 契约文档化、9 条规则齐备
 - v1.0.0（2026-07-31）：初始版本，8 条规则实现

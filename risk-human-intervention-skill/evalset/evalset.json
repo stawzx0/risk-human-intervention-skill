@@ -475,8 +475,8 @@
   },
   {
     "id": "N-05",
-    "scenario": "正常·快递时效FAQ",
-    "category": "正常",
+    "scenario": "人工介入·快递时效承诺(次日达)",
+    "category": "人工介入",
     "input": {
       "query": "多久能送到？",
       "answer": "顺丰次日达。",
@@ -486,10 +486,13 @@
       }
     },
     "expected": {
-      "risk_level": "low",
-      "human_required": "no"
+      "risk_level": "high",
+      "human_required": "yes",
+      "expected_factors": [
+        "时效承诺"
+      ]
     },
-    "confirmed_by": "规则R5"
+    "confirmed_by": "约定修正(2026-08-01):时效承诺不自动发送,转人工"
   },
   {
     "id": "N-06",
@@ -823,5 +826,289 @@
       "human_required": "yes"
     },
     "confirmed_by": "规则R4(query侧始终触发)"
+  },
+  {
+    "id": "N-24",
+    "scenario": "人工介入·发货时效承诺(48小时)",
+    "category": "人工介入",
+    "input": {
+      "query": "今天下单什么时候发货？",
+      "answer": "付款后48小时内发货。",
+      "context": {
+        "product_category": "其他",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "high",
+      "human_required": "yes",
+      "expected_factors": [
+        "时效承诺",
+        "政策出处缺失"
+      ]
+    },
+    "confirmed_by": "规则R10+人工确认(2026-08-01):时效承诺转人工"
+  },
+  {
+    "id": "N-25",
+    "scenario": "人工介入·当日送达承诺",
+    "category": "人工介入",
+    "input": {
+      "query": "今天下单什么时候能到？",
+      "answer": "今天下单，明天送达。",
+      "context": {
+        "product_category": "其他",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "high",
+      "human_required": "yes",
+      "expected_factors": [
+        "时效承诺"
+      ]
+    },
+    "confirmed_by": "规则R10+人工确认(2026-08-01)"
+  },
+  {
+    "id": "N-26",
+    "scenario": "正常·发货政策FAQ(快递选择)",
+    "category": "人工介入",
+    "input": {
+      "query": "你们发什么快递？",
+      "answer": "默认顺丰，偏远地区发圆通。",
+      "context": {
+        "product_category": "其他",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "low",
+      "human_required": "no"
+    },
+    "confirmed_by": "规则R5+人工确认(2026-08-01):政策口径非承诺"
+  },
+  {
+    "id": "N-27",
+    "scenario": "正常·运费政策FAQ",
+    "category": "人工介入",
+    "input": {
+      "query": "运费怎么收？",
+      "answer": "满99元包邮，不满收12元运费。",
+      "context": {
+        "product_category": "其他",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "low",
+      "human_required": "no"
+    },
+    "confirmed_by": "规则R5+人工确认(2026-08-01):政策口径非价格例外"
+  },
+  {
+    "id": "N-28",
+    "scenario": "正常·物流轨迹FAQ",
+    "category": "人工介入",
+    "input": {
+      "query": "我的快递到哪了？",
+      "answer": "您的包裹已揽收，请耐心等待。",
+      "context": {
+        "product_category": "其他",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "low",
+      "human_required": "no"
+    },
+    "confirmed_by": "规则R5+人工确认(2026-08-01):状态查询非承诺"
+  },
+  {
+    "id": "N-29",
+    "scenario": "人工介入·特殊尺寸计费",
+    "category": "人工介入",
+    "input": {
+      "query": "超出标准尺寸的件怎么收费？",
+      "answer": "超出标准尺寸按体积重计费。",
+      "context": {
+        "product_category": "其他",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "high",
+      "human_required": "yes",
+      "expected_factors": [
+        "特殊尺寸",
+        "政策出处缺失"
+      ]
+    },
+    "confirmed_by": "规则R11+人工确认(2026-08-01)"
+  },
+  {
+    "id": "N-30",
+    "scenario": "人工介入·超重包裹",
+    "category": "人工介入",
+    "input": {
+      "query": "我的包裹超重了怎么办？",
+      "answer": "超重包裹需补运费，具体以快递公司为准。",
+      "context": {
+        "product_category": "其他",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "high",
+      "human_required": "yes",
+      "expected_factors": [
+        "特殊尺寸"
+      ]
+    },
+    "confirmed_by": "规则R11+人工确认(2026-08-01)"
+  },
+  {
+    "id": "N-31",
+    "scenario": "人工介入·价格例外(补差价)",
+    "category": "人工介入",
+    "input": {
+      "query": "为什么我买的比别人贵？可以补差价吗？",
+      "answer": "不同订单优惠不同，无法补差价。",
+      "context": {
+        "product_category": "护肤",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "high",
+      "human_required": "yes",
+      "expected_factors": [
+        "价格例外",
+        "政策出处缺失"
+      ]
+    },
+    "confirmed_by": "规则R12+人工确认(2026-08-01)"
+  },
+  {
+    "id": "N-32",
+    "scenario": "人工介入·议价(内部价)",
+    "category": "人工介入",
+    "input": {
+      "query": "能给我一个内部价吗？",
+      "answer": "抱歉，价格以页面为准。",
+      "context": {
+        "product_category": "护肤",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "high",
+      "human_required": "yes",
+      "expected_factors": [
+        "价格例外"
+      ]
+    },
+    "confirmed_by": "规则R12+人工确认(2026-08-01):query侧议价始终触发"
+  },
+  {
+    "id": "N-33",
+    "scenario": "正常·价格政策FAQ(不误报)",
+    "category": "人工介入",
+    "input": {
+      "query": "价格以哪里为准？",
+      "answer": "价格以官网页面为准。",
+      "context": {
+        "product_category": "其他",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "low",
+      "human_required": "no"
+    },
+    "confirmed_by": "规则R5+人工确认(2026-08-01):非价格例外"
+  },
+  {
+    "id": "N-34",
+    "scenario": "人工介入·无出处断言(优惠截止)",
+    "category": "人工介入",
+    "input": {
+      "query": "这个优惠什么时候结束？",
+      "answer": "预计月底结束。",
+      "context": {
+        "product_category": "护肤",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "high",
+      "human_required": "yes",
+      "expected_factors": [
+        "政策出处缺失"
+      ]
+    },
+    "confirmed_by": "规则R13+人工确认(2026-08-01):无出处禁止自动断言"
+  },
+  {
+    "id": "N-35",
+    "scenario": "人工介入·可追溯政策(带出处)",
+    "category": "人工介入",
+    "input": {
+      "query": "今天下单什么时候发货？",
+      "answer": "付款后48小时内发货。",
+      "context": {
+        "product_category": "其他",
+        "match_confidence": 0.9,
+        "policy_source": "shipping-policy#SP-01"
+      }
+    },
+    "expected": {
+      "risk_level": "high",
+      "human_required": "yes",
+      "expected_factors": [
+        "政策出处：shipping-policy#SP-01"
+      ]
+    },
+    "confirmed_by": "规则R13+人工确认(2026-08-01):承诺仍需人工,出处供核验"
+  },
+  {
+    "id": "N-36",
+    "scenario": "人工介入·无出处功效断言",
+    "category": "人工介入",
+    "input": {
+      "query": "这个面霜能祛斑吗？",
+      "answer": "肯定能，我保证。",
+      "context": {
+        "product_category": "护肤",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "high",
+      "human_required": "yes",
+      "expected_factors": [
+        "政策出处缺失"
+      ]
+    },
+    "confirmed_by": "规则R13+人工确认(2026-08-01)"
+  },
+  {
+    "id": "N-37",
+    "scenario": "无效输入·policy_source非字符串",
+    "category": "人工介入",
+    "input": {
+      "query": "你好",
+      "answer": "您好！",
+      "context": {
+        "product_category": "其他",
+        "match_confidence": 0.9,
+        "policy_source": 123
+      }
+    },
+    "expected": {
+      "risk_level": "error",
+      "human_required": "error"
+    },
+    "confirmed_by": "参数校验(v1.3.0)"
   }
 ]
