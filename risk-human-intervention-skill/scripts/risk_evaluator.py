@@ -3,7 +3,15 @@
 Risk & Human Intervention Evaluator 路 风险与人工介入评估器
 Assess whether a knowledge-base response needs human review before sending.
 
-Version: 1.3.0
+Version: 1.4.0
+Changes vs 1.3.0 (2026-08-01, eval loop iteration 4 - answering-boundary coverage):
+  - 新增“回答边界四类”维度：输出 response_mode(direct|clarify|partial|refuse_or_escalate)
+      * 边界1 可直接回答：信息完整、规则明确 -> direct（低风险自动发送）
+      * 边界2 需先澄清：缺尺寸/地点/时间/对象等关键条件 -> clarify（R14，先澄清再答复）
+      * 边界3 只能回答一部分：已知信息可答但必须声明未覆盖部分与下一步 -> partial（R15）
+      * 边界4 不能回答：超范围/证据不足/风险过高 -> refuse_or_escalate（R16/高危/异常）
+  - R13 政策口径问答（“价格以哪里为准”）不误报为澄清；高风险规则仍优先于边界判定
+
 Changes vs 1.2.0 (2026-08-01, eval loop iteration 3 - requirement coverage):
   - 规则引擎层: 新增 R10 发货/物流时效承诺、R11 特殊尺寸/大件、R12 价格例外/议价
       * 时效承诺（次日达/48小时/什么时候发货/预计送达等）一律转人工，不再自动发送
@@ -53,6 +61,34 @@ HIGH_RISK_KEYWORDS = {
 COMPLAINT_REFUND_KEYWORDS = ["退款", "退货"]
 
 MAX_INPUT_LEN = 2000
+
+# ---- 回答边界四类（v1.4.0）----
+# 边界2：需先澄清——query 在索取具体信息，answer 却是占位/模板回复
+QUERY_INFO_NEED = [
+    "多少钱", "多久", "几号", "几点", "什么时候", "能不能", "可不可以", "有没有",
+    "多大", "多少", "哪个", "哪些", "什么", "怎么", "如何", "是什么", "到哪",
+    "在哪里", "在哪", "规格",
+]
+TEMPLATE_ANSWER = [
+    "以官网为准", "以官网页面为准", "以页面为准", "以实际为准", "请提供",
+    "请确认您要", "需要您的", "请具体说明", "需要查询", "查询后回复", "稍后回复",
+    "暂未公布", "无法确认", "以官方公告为准", "请关注官方渠道", "需确认后", "帮您确认",
+]
+# 政策口径问答（“价格以哪里为准”）不视为澄清场景
+_POLICY_WORDING_RE = re.compile(r"为准")
+
+# 边界3：部分回答——多子问但 answer 只覆盖一部分，并声明未覆盖部分与下一步
+UNCOVERED_MARKERS = [
+    "暂未确认", "暂未公布", "尚未", "未覆盖", "需要进一步", "建议咨询",
+    "需遵医嘱", "需人工", "无法确认", "待确认",
+]
+_MULTI_QUESTION_RE = re.compile(r"[?？]")
+
+# 边界4：不能回答——超出范围/证据不足，拒绝并说明边界
+BOUNDARY_REFUSE_MARKERS = [
+    "不在服务范围", "超出", "仅提供", "只提供", "无法回答", "建议联系",
+    "请关注官方渠道", "暂未公布", "以官方公告为准",
+]
 
 # answer 侧否定词（分句计数：奇数=否定，偶数=双重否定取消）
 _NEGATION_RE = re.compile(
@@ -114,6 +150,30 @@ def _has_complaint_risk(query: str, answer: str) -> bool:
 def has_high_risk_keyword(text: str, keyword_list: list) -> bool:
     """兼容 1.0.0 的公开函数（text 视为 query 侧）。"""
     return any(kw in text for kw in keyword_list)
+
+
+def _detect_clarify(query: str, answer: str) -> bool:
+    """R14 边界2：query 索取具体信息，answer 却是占位/模板回复 -> 需先澄清。
+
+    政策口径问答（如“价格以哪里为准？”）有明确答案，不属于澄清场景。
+    """
+    if _POLICY_WORDING_RE.search(query):
+        return False
+    if not any(kw in query for kw in QUERY_INFO_NEED):
+        return False
+    return any(t in answer for t in TEMPLATE_ANSWER)
+
+
+def _detect_partial(query: str, answer: str) -> bool:
+    """R15 边界3：query 含多个子问题，answer 只覆盖一部分并声明未覆盖+下一步。"""
+    if len(_MULTI_QUESTION_RE.findall(query)) < 2:
+        return False
+    return any(m in answer for m in UNCOVERED_MARKERS)
+
+
+def _detect_boundary(answer: str) -> bool:
+    """R16 边界4：超出业务范围或证据不足，应拒绝回答并说明边界。"""
+    return any(m in answer for m in BOUNDARY_REFUSE_MARKERS)
 
 
 def _validate(query, answer, context):
@@ -238,14 +298,52 @@ def evaluate_risk(
         return {"risk_level": "high", "human_required": "yes",
                 "risk_factors": risk_factors,
                 "confidence_sufficient": conf_sufficient,
+                "response_mode": "refuse_or_escalate",
+                "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
                 "reason": "检测到高风险因素，必须人工确认后发送",
                 **base}
+
+    # ---- 回答边界四类判定（v1.4.0）：边界4 > 边界2 > 边界3 > 置信度 > 边界1 ----
+    boundary_hit = _detect_boundary(answer)
+    if boundary_hit:
+        return {"risk_level": "low", "human_required": "no",
+                "risk_factors": risk_factors,
+                "confidence_sufficient": conf_sufficient,
+                "response_mode": "refuse_or_escalate",
+                "response_mode_reason": "超出业务范围或证据不足，拒绝回答并说明边界",
+                "reason": "超出业务范围/证据不足，安全拒绝并说明边界，不自动断言",
+                **base}
+
+    clarify_hit = _detect_clarify(query, answer)
+    if clarify_hit:
+        risk_factors.append("缺少关键条件（对象/地点/规格/时间等），需先向客户澄清")
+        return {"risk_level": "medium", "human_required": "recommended",
+                "risk_factors": risk_factors,
+                "confidence_sufficient": conf_sufficient,
+                "response_mode": "clarify",
+                "response_mode_reason": "缺少尺寸/地点/时间/对象等关键条件，应先澄清再答复",
+                "reason": "缺少关键条件，需先向客户澄清，不能直接下结论",
+                **base}
+
+    partial_hit = _detect_partial(query, answer)
+    if partial_hit:
+        risk_factors.append("仅部分问题可回答，需声明未覆盖部分与下一步动作")
+        return {"risk_level": "low", "human_required": "recommended",
+                "risk_factors": risk_factors,
+                "confidence_sufficient": conf_sufficient,
+                "response_mode": "partial",
+                "response_mode_reason": "仅覆盖部分问题，需声明未覆盖部分与下一步动作",
+                "reason": "部分回答：已知信息可答，须声明未覆盖部分与下一步动作",
+                **base}
+
     if confidence < 0.6:
         reason = (f"置信度({confidence:.2f})较低，建议人工确认"
                   if conf_provided else "未提供置信度，按保守策略建议人工复核")
         return {"risk_level": "medium", "human_required": "recommended",
                 "risk_factors": risk_factors,
                 "confidence_sufficient": False,
+                "response_mode": "refuse_or_escalate",
+                "response_mode_reason": "证据不足（置信度低），说明边界并建议人工复核",
                 "reason": reason,
                 **base}
     if confidence < 0.8:
@@ -254,11 +352,15 @@ def evaluate_risk(
         return {"risk_level": "medium", "human_required": "recommended",
                 "risk_factors": risk_factors,
                 "confidence_sufficient": False,
+                "response_mode": "refuse_or_escalate",
+                "response_mode_reason": "证据不足（置信度不足），说明边界并建议人工复核",
                 "reason": reason,
                 **base}
     return {"risk_level": "low", "human_required": "no",
             "risk_factors": risk_factors,
             "confidence_sufficient": True,
+            "response_mode": "direct",
+            "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
             "reason": "标准FAQ，置信度充足，可自动发送",
             **base}
 

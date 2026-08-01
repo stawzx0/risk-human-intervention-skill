@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>风险与人工介入评估器 · Demo v1.3.0</title>
+<title>风险与人工介入评估器 · Demo v1.4.0</title>
 <style>
   :root{--ink:#0a0a0a;--paper:#fafaf8;--accent:#002FA7;--green:#0e7a3d;--amber:#b26a00;--red:#b3001b;--grey:#6b6b6b}
   *{box-sizing:border-box;margin:0;padding:0}
@@ -46,7 +46,7 @@
 </head>
 <body>
 <h1>美妆零售客服 · 风险与人工介入评估器 Demo</h1>
-<div class="sub">发送前安全阀：判定话术推荐回复可直接自动发送、建议人工复核还是必须人工介入 ｜ 版本 v1.3.0（覆盖发货时效/特殊尺寸/价格例外转人工 + 政策出处可追溯）</div>
+<div class="sub">发送前安全阀：判定话术推荐回复可直接自动发送、建议人工复核还是必须人工介入 ｜ 版本 v1.4.0（覆盖发货时效/特殊尺寸/价格例外转人工 + 政策出处可追溯 + 回答边界四类）</div>
 
 <div class="grid">
   <div class="card">
@@ -92,6 +92,9 @@
       <button data-preset="badconf">无效输入：置信度类型错误 → 不崩溃（error）</button>
       <button data-preset="refundfaq">正常流程：退款政策 FAQ → 自动发送（low / no，v1.2.0 修复）</button>
       <button data-preset="doubleneg">人工介入：双重否定 → 正确识别为有优惠（high / yes，v1.2.0 修复）</button>
+      <button data-preset="boundary_clarify">边界2·需先澄清：缺规格 → 先澄清再答复（medium / recommended，R14）</button>
+      <button data-preset="boundary_partial">边界3·部分回答：已答敏感肌+未覆盖油皮 → 声明未覆盖与下一步（low / recommended，R15）</button>
+      <button data-preset="boundary_refuse">边界4·不能回答：超出业务范围 → 拒绝并说明边界（low / no，R16）</button>
     </div>
     <div class="result" id="result" style="margin-top:20px">
       <div class="sub">评估结果将显示在此处</div>
@@ -108,7 +111,8 @@
 <div class="foot">
   说明：演示为正常流程与失败/边界场景对照。第一轮（v1.0.0→v1.1.0）修复「否定语境误报」「超长输入未拦截」「置信度类型错误崩溃」；
   第二轮（v1.1.0→v1.2.0）修复「退款政策 FAQ 误判投诉」「双重否定误消解」；
-  第三轮（v1.2.0→v1.3.0）按约定补齐「发货时效承诺 / 特殊尺寸 / 价格例外转人工」与「政策出处可追溯、无出处不做断言」。
+  第三轮（v1.2.0→v1.3.0）按约定补齐「发货时效承诺 / 特殊尺寸 / 价格例外转人工」与「政策出处可追溯、无出处不做断言」；
+  第四轮（v1.3.0→v1.4.0）新增「回答边界四类」：可直接回答（direct）/ 需先澄清（clarify）/ 只能回答一部分（partial）/ 不能回答（refuse_or_escalate）。
   评测闭环详见《Eval 与项目验收报告》。
 </div>
 <div class="flash" id="flash"></div>
@@ -163,6 +167,18 @@ const PRESETS = {
   doubleneg: {
     query: "这个月店铺有活动吗？", answer: "本品不是没有优惠，全场8折起。",
     category: "护肤", confidence: "0.85", policy_source: "", promo: false, inventory: false, medical: false
+  },
+  boundary_clarify: {
+    query: "这个精华液多大规格？", answer: "请确认您要的规格（15ml/30ml），不同规格价格不同。",
+    category: "护肤", confidence: "0.90", policy_source: "", promo: false, inventory: false, medical: false
+  },
+  boundary_partial: {
+    query: "这款精华敏感肌能用吗？油皮能用吗？", answer: "本品成分温和，敏感肌可用；油皮适配性暂未确认，建议咨询人工确认。",
+    category: "护肤", confidence: "0.90", policy_source: "", promo: false, inventory: false, medical: false
+  },
+  boundary_refuse: {
+    query: "你们可以修手机吗？", answer: "本店仅提供美妆售前咨询，手机维修不在服务范围，建议联系品牌官方售后。",
+    category: "其他", confidence: "0.90", policy_source: "", promo: false, inventory: false, medical: false
   }
 };
 const LEVEL_META = {
@@ -246,6 +262,7 @@ async function run() {
         <div><b>人工介入：</b>${esc(HUMAN_META[r.human_required] || r.human_required)}</div>
         <div><b>置信度充足：</b>${r.confidence_sufficient ? "是" : "否"}</div>
         <div><b>政策出处：</b>${src} ｜ <b>可追溯：</b>${r.policy_traceable ? "是" : "否"}</div>
+        <div><b>回答边界：</b>${esc(r.response_mode || "-")} ｜ <b>判定依据：</b>${esc(r.response_mode_reason || "-")}</div>
       </div>
       <div class="factors"><b>风险因素：</b><ul>${factors || "<li>无</li>"}</ul></div>
       <div class="reason"><b>决策理由：</b>${esc(r.reason)}</div>`;

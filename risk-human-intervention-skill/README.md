@@ -1,4 +1,4 @@
-# risk-human-intervention Skill（完整版 v1.3.0）
+# risk-human-intervention Skill（完整版 v1.4.0）
 
 美妆零售知识库与客服协作系统中的「发送前安全阀」：判定客服回复是否可自动发送或需人工介入（含发货/物流咨询）。
 
@@ -6,20 +6,20 @@
 
 ```
 risk-human-intervention-skill/
-├── SKILL.md                      # 技能说明：输入输出、13 条规则、错误契约、示例、版本
+├── SKILL.md                      # 技能说明：输入输出、13 条规则+回答边界四类、错误契约、示例、版本
 ├── README.md                     # 本文档
 ├── CHANGELOG.md                  # 变更留痕
 ├── install-skill.ps1             # 安装到 %USERPROFILE%\.codex\skills\
 ├── agents/openai.yaml            # Agent 接口描述
 ├── references/
-│   ├── risk-rules-reference.md   # 13 条规则明细 + 词表 + 否定消解 + 政策出处校验
+│   ├── risk-rules-reference.md   # 规则明细 + 词表 + 否定消解 + 政策出处 + 回答边界四类
 │   └── shipping-policy.md        # 发货知识库（SP-01~SP-05 政策条目，可作 policy_source）
-├── evalset/evalset.json          # 第一版评测集 v3（58 条用例）
-├── results/                      # 基线 v1.0.0 ~ 回归 v1.3.0 结果（可复现）
+├── evalset/evalset.json          # 第一版评测集 v4（68 条用例，含四类回答边界）
+├── results/                      # 基线 v1.0.0 ~ 回归 v1.4.0 结果（可复现）
 └── scripts/
-    ├── risk_evaluator.py         # 评估器（v1.3.0，纯标准库）
-    ├── test_evaluator.py         # 完整回归套件（34 个测试方法）
-    └── run_evalset.py            # 评测运行器（输出五字段结果表 + 指标）
+    ├── risk_evaluator.py         # 评估器（v1.4.0，纯标准库）
+    ├── test_evaluator.py         # 完整回归套件（46 个测试方法）
+    └── run_evalset.py            # 评测运行器（支持 response_mode 断言，输出结果表 + 指标）
 ```
 
 ## 安装
@@ -48,7 +48,7 @@ python scripts/risk_evaluator.py --query "..." --answer "..." --category 护肤 
 # 快速回归（单元测试，无外部依赖）
 python scripts/test_evaluator.py
 
-# 全量评测（58 条用例，五字段结果表 + 指标）
+# 全量评测（68 条用例，含 response_mode 断言，结果表 + 指标）
 python scripts/run_evalset.py --evaluator scripts --evalset evalset/evalset.json --out results/latest.json
 ```
 
@@ -62,6 +62,8 @@ python scripts/run_evalset.py --evaluator scripts --evalset evalset/evalset.json
 | 回归2 | v1.2.0 | 44 | 44/44 (100%) | 100% | 100% | 100% | 0 |
 | 基线3 | v1.2.0 | 58 | 47/58 (81.0%) | 83.0% | 83.0% | 100% | 0 |
 | 回归3 | v1.3.0 | 58 | 58/58 (100%) | 100% | 100% | 100% | 0 |
+| 基线4 | v1.3.0 | 68 | 58/68 (85.3%) | 91.2% | 89.5% | 100% | 0 |
+| 回归4 | v1.4.0 | 68 | 68/68 (100%) | 100% | 100% | 100% | 0 |
 
 ### 第三轮（v1.2.0 → v1.3.0）定位并修复的问题（需求覆盖核验）
 
@@ -73,8 +75,18 @@ python scripts/run_evalset.py --evaluator scripts --evalset evalset/evalset.json
 4. 规则引擎层：承诺/宣称无政策出处约束 → 新增 R13（policy_source 校验，禁止无出处自动断言）
 5. 发货知识库：新增 references/shipping-policy.md（SP-01~SP-05），Demo 增加知识库查询面板与出处回显
 
+### 第四轮（v1.3.0 → v1.4.0）定位并修复的问题（回答边界四类覆盖）
+
+核验评测集是否覆盖四种回答边界（可直接回答 / 需先澄清 / 只能回答一部分 / 不能回答）：
+
+1. 边界1 可直接回答：原有 21 条 low/no 用例已覆盖 → 新增 B-07 显式对照，`response_mode=direct`
+2. 边界2 需先澄清：原评测集 0 条覆盖（无“缺尺寸/地点/时间/对象需先澄清”场景）→ 新增 R14 判定 + B-01~B-04/B-10 五条用例（缺对象/地点/规格/暂无法回答）
+3. 边界3 只能回答一部分：原评测集 0 条覆盖（无“未覆盖部分+下一步动作”断言）→ 新增 R15 判定 + B-05 用例；高危场景（B-06 母婴）仍优先转人工
+4. 边界4 不能回答：原评测集已覆盖转人工/拒绝/异常（high/error/medium 共 37 条）→ 新增 R16 边界说明判定 + B-08/B-09 对照（超出范围、证据不足）
+5. 输出契约：`run_evalset.py` 新增可选 `response_mode` 断言；评估器输出 `response_mode` + `response_mode_reason`
+
 ## 可复现性
 
-- 版本留痕：`git tag v1.0.0 / v1.1.0 / v1.2.0 / v1.3.0`（GitHub: stawzx0/risk-human-intervention-skill），评测集与结果 JSON 随包附带
+- 版本留痕：`git tag v1.0.0 / v1.1.0 / v1.2.0 / v1.3.0 / v1.4.0`（GitHub: stawzx0/risk-human-intervention-skill），评测集与结果 JSON 随包附带
 - 重跑方式：`python scripts/run_evalset.py --evaluator scripts --evalset evalset/evalset.json --out results/latest.json`
-- 预期结果来源：规则 R1-R13（SKILL.md）+ 需人工确认的业务预期（见评测集 confirmed_by 字段）
+- 预期结果来源：规则 R1-R16 + 回答边界四类（SKILL.md）+ 需人工确认的业务预期（见评测集 confirmed_by 字段）

@@ -1110,5 +1110,198 @@
       "human_required": "error"
     },
     "confirmed_by": "参数校验(v1.3.0)"
+  },
+  {
+    "id": "B-01",
+    "scenario": "边界2·缺对象(价格)->先澄清",
+    "category": "边界",
+    "input": {
+      "query": "这款精华液多少钱？",
+      "answer": "价格以官网页面为准。",
+      "context": {
+        "product_category": "护肤",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "medium",
+      "human_required": "recommended",
+      "response_mode": "clarify"
+    },
+    "confirmed_by": "R14+人工确认(2026-08-01):缺对象需先澄清，不得直接下结论"
+  },
+  {
+    "id": "B-02",
+    "scenario": "边界2·缺地点(配送)->先澄清",
+    "category": "边界",
+    "input": {
+      "query": "你们支持哪些地区配送？",
+      "answer": "请提供您的收货城市，我们帮您确认能否配送。",
+      "context": {
+        "product_category": "其他",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "medium",
+      "human_required": "recommended",
+      "response_mode": "clarify"
+    },
+    "confirmed_by": "R14+人工确认(2026-08-01):缺地点需先澄清"
+  },
+  {
+    "id": "B-03",
+    "scenario": "边界2·缺对象(推荐)->先澄清",
+    "category": "边界",
+    "input": {
+      "query": "有什么产品适合油皮？",
+      "answer": "请具体说明您关注的品类，我们为您推荐。",
+      "context": {
+        "product_category": "护肤",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "medium",
+      "human_required": "recommended",
+      "response_mode": "clarify"
+    },
+    "confirmed_by": "R14+人工确认(2026-08-01):缺对象需先澄清"
+  },
+  {
+    "id": "B-04",
+    "scenario": "边界2·缺规格(尺寸)->先澄清",
+    "category": "边界",
+    "input": {
+      "query": "这个精华液多大规格？",
+      "answer": "请确认您要的规格（15ml/30ml），不同规格价格不同。",
+      "context": {
+        "product_category": "护肤",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "medium",
+      "human_required": "recommended",
+      "response_mode": "clarify"
+    },
+    "confirmed_by": "R14+人工确认(2026-08-01):缺规格需先澄清"
+  },
+  {
+    "id": "B-05",
+    "scenario": "边界3·部分回答+未覆盖声明+下一步",
+    "category": "边界",
+    "input": {
+      "query": "这款精华敏感肌能用吗？油皮能用吗？",
+      "answer": "本品成分温和，敏感肌可用；油皮适配性暂未确认，建议咨询人工确认。",
+      "context": {
+        "product_category": "护肤",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "low",
+      "human_required": "recommended",
+      "response_mode": "partial"
+    },
+    "confirmed_by": "R15+人工确认(2026-08-01):部分回答须声明未覆盖部分与下一步"
+  },
+  {
+    "id": "B-06",
+    "scenario": "边界3/4·部分回答但母婴高危->转人工",
+    "category": "人工介入",
+    "input": {
+      "query": "这款面霜孕妇能用吗？敏感肌能用吗？",
+      "answer": "敏感肌可用；孕妇使用需遵医嘱。",
+      "context": {
+        "product_category": "母婴",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "high",
+      "human_required": "yes",
+      "response_mode": "refuse_or_escalate",
+      "expected_factors": [
+        "母婴"
+      ]
+    },
+    "confirmed_by": "R8优先+人工确认(2026-08-01):高危场景转人工优先于部分回答"
+  },
+  {
+    "id": "B-07",
+    "scenario": "边界1·信息完整规则明确->直接回答",
+    "category": "正常",
+    "input": {
+      "query": "你们几点营业？",
+      "answer": "周一至周日 9:00-21:00。",
+      "context": {
+        "product_category": "其他",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "low",
+      "human_required": "no",
+      "response_mode": "direct"
+    },
+    "confirmed_by": "R5+人工确认(2026-08-01):完整信息直接简洁回答"
+  },
+  {
+    "id": "B-08",
+    "scenario": "边界4·超出业务范围->拒绝并说明边界",
+    "category": "人工介入",
+    "input": {
+      "query": "你们可以修手机吗？",
+      "answer": "本店仅提供美妆售前咨询，手机维修不在服务范围，建议联系品牌官方售后。",
+      "context": {
+        "product_category": "其他",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "low",
+      "human_required": "no",
+      "response_mode": "refuse_or_escalate"
+    },
+    "confirmed_by": "R16+人工确认(2026-08-01):超出范围拒绝回答并说明边界"
+  },
+  {
+    "id": "B-09",
+    "scenario": "边界4·证据不足->说明边界不自动断言",
+    "category": "人工介入",
+    "input": {
+      "query": "这款面膜什么时候上新款？",
+      "answer": "新品上市时间暂未公布，请关注官方渠道通知。",
+      "context": {
+        "product_category": "护肤",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "low",
+      "human_required": "no",
+      "response_mode": "refuse_or_escalate"
+    },
+    "confirmed_by": "R16+人工确认(2026-08-01):证据不足只说明边界，不自动断言"
+  },
+  {
+    "id": "B-10",
+    "scenario": "边界2·暂无法回答->先澄清",
+    "category": "边界",
+    "input": {
+      "query": "你们的会员积分规则是什么？",
+      "answer": "请稍等，我需要查询后回复您。",
+      "context": {
+        "product_category": "其他",
+        "match_confidence": 0.9
+      }
+    },
+    "expected": {
+      "risk_level": "medium",
+      "human_required": "recommended",
+      "response_mode": "clarify"
+    },
+    "confirmed_by": "R14+人工确认(2026-08-01):暂无法回答应先澄清/稍后答复"
   }
 ]

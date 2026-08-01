@@ -1,7 +1,7 @@
 ﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Test Suite 风险与人工介入评估器（完整回归套件，v1.3.0）
+Test Suite 风险与人工介入评估器（完整回归套件，v1.4.0）
 - 覆盖：正常、人工介入(促销/库存/医疗/投诉/母婴)、置信度边界、无效输入、系统异常、否定语境、权限(不越权)
 - 运行：python scripts/test_evaluator.py
 - 依赖：仅标准库
@@ -236,6 +236,87 @@ class TestRiskEvaluator(unittest.TestCase):
             "你好", "您好！",
             {"product_category": "其他", "match_confidence": 0.9, "policy_source": 123},
             "error", "error", "policy_source 非字符串")
+
+    # ---- v1.4.0：回答边界四类（response_mode）----
+    def _assert_mode(self, query, answer, context, exp_level, exp_human, exp_mode, label=""):
+        r = evaluate_risk(query, answer, context)
+        self.assertEqual(r["risk_level"], exp_level, f"[{label}] risk_level: {r}")
+        self.assertEqual(r["human_required"], exp_human, f"[{label}] human_required: {r}")
+        self.assertEqual(r["response_mode"], exp_mode, f"[{label}] response_mode: {r}")
+        return r
+
+    def test_35_clarify_price_missing_object(self):
+        self._assert_mode(
+            "这款精华液多少钱？", "价格以官网页面为准。",
+            {"product_category": "护肤", "match_confidence": 0.9},
+            "medium", "recommended", "clarify", "缺对象(价格)->先澄清")
+
+    def test_36_clarify_missing_location(self):
+        self._assert_mode(
+            "你们支持哪些地区配送？", "请提供您的收货城市，我们帮您确认能否配送。",
+            {"product_category": "其他", "match_confidence": 0.9},
+            "medium", "recommended", "clarify", "缺地点->先澄清")
+
+    def test_37_clarify_missing_object_recommend(self):
+        self._assert_mode(
+            "有什么产品适合油皮？", "请具体说明您关注的品类，我们为您推荐。",
+            {"product_category": "护肤", "match_confidence": 0.9},
+            "medium", "recommended", "clarify", "缺对象(推荐)->先澄清")
+
+    def test_38_clarify_missing_spec(self):
+        self._assert_mode(
+            "这个精华液多大规格？", "请确认您要的规格（15ml/30ml），不同规格价格不同。",
+            {"product_category": "护肤", "match_confidence": 0.9},
+            "medium", "recommended", "clarify", "缺规格(尺寸)->先澄清")
+
+    def test_39_clarify_needs_query_after(self):
+        self._assert_mode(
+            "你们的会员积分规则是什么？", "请稍等，我需要查询后回复您。",
+            {"product_category": "其他", "match_confidence": 0.9},
+            "medium", "recommended", "clarify", "暂无法回答->先澄清/稍后答复")
+
+    def test_40_partial_with_uncovered_declaration(self):
+        self._assert_mode(
+            "这款精华敏感肌能用吗？油皮能用吗？", "本品成分温和，敏感肌可用；油皮适配性暂未确认，建议咨询人工确认。",
+            {"product_category": "护肤", "match_confidence": 0.9},
+            "low", "recommended", "partial", "部分回答+未覆盖声明+下一步")
+
+    def test_41_partial_not_when_high_risk_maternal(self):
+        self._assert_mode(
+            "这款面霜孕妇能用吗？敏感肌能用吗？", "敏感肌可用；孕妇使用需遵医嘱。",
+            {"product_category": "母婴", "match_confidence": 0.9},
+            "high", "yes", "refuse_or_escalate", "高危(母婴)优先于部分回答")
+
+    def test_42_direct_full_info(self):
+        self._assert_mode(
+            "你们几点营业？", "周一至周日 9:00-21:00。",
+            {"product_category": "其他", "match_confidence": 0.9},
+            "low", "no", "direct", "信息完整->直接回答")
+
+    def test_43_refuse_out_of_scope(self):
+        self._assert_mode(
+            "你们可以修手机吗？", "本店仅提供美妆售前咨询，手机维修不在服务范围，建议联系品牌官方售后。",
+            {"product_category": "其他", "match_confidence": 0.9},
+            "low", "no", "refuse_or_escalate", "超出业务范围->拒绝并说明边界")
+
+    def test_44_refuse_insufficient_evidence(self):
+        self._assert_mode(
+            "这款面膜什么时候上新款？", "新品上市时间暂未公布，请关注官方渠道通知。",
+            {"product_category": "护肤", "match_confidence": 0.9},
+            "low", "no", "refuse_or_escalate", "证据不足->说明边界不自动断言")
+
+    def test_45_policy_wording_not_clarify(self):
+        self._assert_mode(
+            "价格以哪里为准？", "价格以官网页面为准。",
+            {"product_category": "其他", "match_confidence": 0.9},
+            "low", "no", "direct", "政策口径问答不误报为澄清(R14防回归)")
+
+    def test_46_low_confidence_still_boundary(self):
+        self._assert_mode(
+            "你们在哪？", "官网有门店列表。",
+            {"product_category": "其他", "match_confidence": 0.0},
+            "medium", "recommended", "refuse_or_escalate", "置信度不足->说明边界")
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

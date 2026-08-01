@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Demo server for risk-human-intervention skill v1.3.0 (stdlib only).
+"""Demo server for risk-human-intervention skill v1.4.0 (stdlib only).
 
 Run:  python demo/server.py
 Open: http://127.0.0.1:8765
@@ -109,5 +109,5 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    print(f"Demo server v1.3.0: http://127.0.0.1:{PORT}  (evaluator: {SCRIPTS})")
+    print(f"Demo server v1.4.0: http://127.0.0.1:{PORT}  (evaluator: {SCRIPTS})")
     HTTPServer(("127.0.0.1", PORT), Handler).serve_forever()

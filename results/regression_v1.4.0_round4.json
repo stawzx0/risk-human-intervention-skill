@@ -11,20 +11,20 @@
     "business_effective_resolution_rate": 1.0,
     "invalid_input_handling_rate": 1.0,
     "per_class": {
-      "high": {
-        "tp": 22,
-        "fp": 0,
-        "fn": 0,
-        "total": 22,
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0
-      },
       "medium": {
         "tp": 10,
         "fp": 0,
         "fn": 0,
         "total": 10,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "high": {
+        "tp": 22,
+        "fp": 0,
+        "fn": 0,
+        "total": 22,
         "precision": 1.0,
         "recall": 1.0,
         "f1": 1.0

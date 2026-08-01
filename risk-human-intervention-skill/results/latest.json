@@ -1,39 +1,39 @@
 {
-  "tag": "v1.3.0",
+  "tag": "run",
   "metrics": {
-    "total_cases": 58,
-    "passed": 58,
+    "total_cases": 68,
+    "passed": 68,
     "crash_count": 0,
-    "valid_cases": 47,
+    "valid_cases": 57,
     "invalid_input_cases": 11,
     "risk_accuracy": 1.0,
     "disposition_accuracy": 1.0,
     "business_effective_resolution_rate": 1.0,
     "invalid_input_handling_rate": 1.0,
     "per_class": {
-      "medium": {
-        "tp": 5,
+      "high": {
+        "tp": 22,
         "fp": 0,
         "fn": 0,
-        "total": 5,
+        "total": 22,
         "precision": 1.0,
         "recall": 1.0,
         "f1": 1.0
       },
-      "high": {
-        "tp": 21,
+      "medium": {
+        "tp": 10,
         "fp": 0,
         "fn": 0,
-        "total": 21,
+        "total": 10,
         "precision": 1.0,
         "recall": 1.0,
         "f1": 1.0
       },
       "low": {
-        "tp": 21,
+        "tp": 25,
         "fp": 0,
         "fn": 0,
-        "total": 21,
+        "total": 25,
         "precision": 1.0,
         "recall": 1.0,
         "f1": 1.0
@@ -68,6 +68,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
         "reason": "标准FAQ，置信度充足，可自动发送",
         "policy_source": null,
         "policy_traceable": false
@@ -105,6 +107,8 @@
           "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
         ],
         "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
         "reason": "检测到高风险因素，必须人工确认后发送",
         "policy_source": null,
         "policy_traceable": false
@@ -142,6 +146,8 @@
           "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
         ],
         "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
         "reason": "检测到高风险因素，必须人工确认后发送",
         "policy_source": null,
         "policy_traceable": false
@@ -179,6 +185,8 @@
           "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
         ],
         "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
         "reason": "检测到高风险因素，必须人工确认后发送",
         "policy_source": null,
         "policy_traceable": false
@@ -215,6 +223,8 @@
           "涉及投诉/纠纷，需升级处理"
         ],
         "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
         "reason": "检测到高风险因素，必须人工确认后发送",
         "policy_source": null,
         "policy_traceable": false
@@ -251,6 +261,8 @@
           "母婴产品类(母婴)，自动回复高风险"
         ],
         "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
         "reason": "检测到高风险因素，必须人工确认后发送",
         "policy_source": null,
         "policy_traceable": false
@@ -284,6 +296,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
         "reason": "标准FAQ，置信度充足，可自动发送",
         "policy_source": null,
         "policy_traceable": false
@@ -317,6 +331,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": false,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "证据不足（置信度不足），说明边界并建议人工复核",
         "reason": "置信度(0.60)不足，建议人工复核",
         "policy_source": null,
         "policy_traceable": false
@@ -350,6 +366,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": false,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "证据不足（置信度不足），说明边界并建议人工复核",
         "reason": "置信度(0.79)不足，建议人工复核",
         "policy_source": null,
         "policy_traceable": false
@@ -569,6 +587,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
         "reason": "标准FAQ，置信度充足，可自动发送",
         "policy_source": null,
         "policy_traceable": false
@@ -602,6 +622,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
         "reason": "标准FAQ，置信度充足，可自动发送",
         "policy_source": null,
         "policy_traceable": false
@@ -635,6 +657,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
         "reason": "标准FAQ，置信度充足，可自动发送",
         "policy_source": null,
         "policy_traceable": false
@@ -668,6 +692,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
         "reason": "标准FAQ，置信度充足，可自动发送",
         "policy_source": null,
         "policy_traceable": false
@@ -698,6 +724,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": false,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "证据不足（置信度低），说明边界并建议人工复核",
         "reason": "未提供置信度，按保守策略建议人工复核",
         "policy_source": null,
         "policy_traceable": false
@@ -733,6 +761,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
         "reason": "标准FAQ，置信度充足，可自动发送",
         "policy_source": null,
         "policy_traceable": false
@@ -766,6 +796,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
         "reason": "标准FAQ，置信度充足，可自动发送",
         "policy_source": null,
         "policy_traceable": false
@@ -799,6 +831,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
         "reason": "标准FAQ，置信度充足，可自动发送",
         "policy_source": null,
         "policy_traceable": false
@@ -833,6 +867,8 @@
           "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
         ],
         "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
         "reason": "检测到高风险因素，必须人工确认后发送",
         "policy_source": null,
         "policy_traceable": false
@@ -866,6 +902,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
         "reason": "标准FAQ，置信度充足，可自动发送",
         "policy_source": null,
         "policy_traceable": false
@@ -903,6 +941,8 @@
           "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
         ],
         "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
         "reason": "检测到高风险因素，必须人工确认后发送",
         "policy_source": null,
         "policy_traceable": false
@@ -936,6 +976,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
         "reason": "标准FAQ，置信度充足，可自动发送",
         "policy_source": null,
         "policy_traceable": false
@@ -969,6 +1011,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
         "reason": "标准FAQ，置信度充足，可自动发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1002,6 +1046,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": false,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "证据不足（置信度低），说明边界并建议人工复核",
         "reason": "置信度(0.00)较低，建议人工确认",
         "policy_source": null,
         "policy_traceable": false
@@ -1034,6 +1080,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": false,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "证据不足（置信度低），说明边界并建议人工复核",
         "reason": "未提供置信度，按保守策略建议人工复核",
         "policy_source": null,
         "policy_traceable": false
@@ -1191,6 +1239,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
         "reason": "标准FAQ，置信度充足，可自动发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1224,6 +1274,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
         "reason": "标准FAQ，置信度充足，可自动发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1257,6 +1309,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
         "reason": "标准FAQ，置信度充足，可自动发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1297,6 +1351,8 @@
           "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
         ],
         "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
         "reason": "检测到高风险因素，必须人工确认后发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1330,6 +1386,8 @@
           "涉及投诉/纠纷，需升级处理"
         ],
         "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
         "reason": "检测到高风险因素，必须人工确认后发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1363,6 +1421,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
         "reason": "标准FAQ，置信度充足，可自动发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1397,6 +1457,8 @@
           "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
         ],
         "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
         "reason": "检测到高风险因素，必须人工确认后发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1431,6 +1493,8 @@
           "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
         ],
         "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
         "reason": "检测到高风险因素，必须人工确认后发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1464,6 +1528,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
         "reason": "标准FAQ，置信度充足，可自动发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1497,6 +1563,8 @@
           "涉及投诉/纠纷，需升级处理"
         ],
         "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
         "reason": "检测到高风险因素，必须人工确认后发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1535,6 +1603,8 @@
           "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
         ],
         "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
         "reason": "检测到高风险因素，必须人工确认后发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1572,6 +1642,8 @@
           "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
         ],
         "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
         "reason": "检测到高风险因素，必须人工确认后发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1605,6 +1677,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
         "reason": "标准FAQ，置信度充足，可自动发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1638,6 +1712,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
         "reason": "标准FAQ，置信度充足，可自动发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1671,6 +1747,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
         "reason": "标准FAQ，置信度充足，可自动发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1709,6 +1787,8 @@
           "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
         ],
         "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
         "reason": "检测到高风险因素，必须人工确认后发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1746,6 +1826,8 @@
           "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
         ],
         "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
         "reason": "检测到高风险因素，必须人工确认后发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1784,6 +1866,8 @@
           "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
         ],
         "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
         "reason": "检测到高风险因素，必须人工确认后发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1821,6 +1905,8 @@
           "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
         ],
         "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
         "reason": "检测到高风险因素，必须人工确认后发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1854,6 +1940,8 @@
           "未检测到高风险内容"
         ],
         "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
         "reason": "标准FAQ，置信度充足，可自动发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1891,6 +1979,8 @@
           "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
         ],
         "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
         "reason": "检测到高风险因素，必须人工确认后发送",
         "policy_source": null,
         "policy_traceable": false
@@ -1929,6 +2019,8 @@
           "政策出处：shipping-policy#SP-01（供人工核验，仍需确认后发送）"
         ],
         "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
         "reason": "检测到高风险因素，必须人工确认后发送",
         "policy_source": "shipping-policy#SP-01",
         "policy_traceable": true
@@ -1966,6 +2058,8 @@
           "政策出处缺失（policy_source 未提供），禁止自动断言，需人工核验政策后回复"
         ],
         "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
         "reason": "检测到高风险因素，必须人工确认后发送",
         "policy_source": null,
         "policy_traceable": false
@@ -2001,6 +2095,375 @@
         ],
         "confidence_sufficient": false,
         "reason": "context 不合法"
+      },
+      "crash": null,
+      "level_ok": true,
+      "human_ok": true,
+      "extra_ok": true,
+      "passed": true
+    },
+    {
+      "id": "B-01",
+      "scenario": "边界2·缺对象(价格)->先澄清",
+      "category": "边界",
+      "input": {
+        "query": "这款精华液多少钱？",
+        "answer": "价格以官网页面为准。",
+        "context": {
+          "product_category": "护肤",
+          "match_confidence": 0.9
+        }
+      },
+      "expected": {
+        "risk_level": "medium",
+        "human_required": "recommended",
+        "response_mode": "clarify"
+      },
+      "actual": {
+        "risk_level": "medium",
+        "human_required": "recommended",
+        "risk_factors": [
+          "未检测到高风险内容",
+          "缺少关键条件（对象/地点/规格/时间等），需先向客户澄清"
+        ],
+        "confidence_sufficient": true,
+        "response_mode": "clarify",
+        "response_mode_reason": "缺少尺寸/地点/时间/对象等关键条件，应先澄清再答复",
+        "reason": "缺少关键条件，需先向客户澄清，不能直接下结论",
+        "policy_source": null,
+        "policy_traceable": false
+      },
+      "crash": null,
+      "level_ok": true,
+      "human_ok": true,
+      "extra_ok": true,
+      "passed": true
+    },
+    {
+      "id": "B-02",
+      "scenario": "边界2·缺地点(配送)->先澄清",
+      "category": "边界",
+      "input": {
+        "query": "你们支持哪些地区配送？",
+        "answer": "请提供您的收货城市，我们帮您确认能否配送。",
+        "context": {
+          "product_category": "其他",
+          "match_confidence": 0.9
+        }
+      },
+      "expected": {
+        "risk_level": "medium",
+        "human_required": "recommended",
+        "response_mode": "clarify"
+      },
+      "actual": {
+        "risk_level": "medium",
+        "human_required": "recommended",
+        "risk_factors": [
+          "未检测到高风险内容",
+          "缺少关键条件（对象/地点/规格/时间等），需先向客户澄清"
+        ],
+        "confidence_sufficient": true,
+        "response_mode": "clarify",
+        "response_mode_reason": "缺少尺寸/地点/时间/对象等关键条件，应先澄清再答复",
+        "reason": "缺少关键条件，需先向客户澄清，不能直接下结论",
+        "policy_source": null,
+        "policy_traceable": false
+      },
+      "crash": null,
+      "level_ok": true,
+      "human_ok": true,
+      "extra_ok": true,
+      "passed": true
+    },
+    {
+      "id": "B-03",
+      "scenario": "边界2·缺对象(推荐)->先澄清",
+      "category": "边界",
+      "input": {
+        "query": "有什么产品适合油皮？",
+        "answer": "请具体说明您关注的品类，我们为您推荐。",
+        "context": {
+          "product_category": "护肤",
+          "match_confidence": 0.9
+        }
+      },
+      "expected": {
+        "risk_level": "medium",
+        "human_required": "recommended",
+        "response_mode": "clarify"
+      },
+      "actual": {
+        "risk_level": "medium",
+        "human_required": "recommended",
+        "risk_factors": [
+          "未检测到高风险内容",
+          "缺少关键条件（对象/地点/规格/时间等），需先向客户澄清"
+        ],
+        "confidence_sufficient": true,
+        "response_mode": "clarify",
+        "response_mode_reason": "缺少尺寸/地点/时间/对象等关键条件，应先澄清再答复",
+        "reason": "缺少关键条件，需先向客户澄清，不能直接下结论",
+        "policy_source": null,
+        "policy_traceable": false
+      },
+      "crash": null,
+      "level_ok": true,
+      "human_ok": true,
+      "extra_ok": true,
+      "passed": true
+    },
+    {
+      "id": "B-04",
+      "scenario": "边界2·缺规格(尺寸)->先澄清",
+      "category": "边界",
+      "input": {
+        "query": "这个精华液多大规格？",
+        "answer": "请确认您要的规格（15ml/30ml），不同规格价格不同。",
+        "context": {
+          "product_category": "护肤",
+          "match_confidence": 0.9
+        }
+      },
+      "expected": {
+        "risk_level": "medium",
+        "human_required": "recommended",
+        "response_mode": "clarify"
+      },
+      "actual": {
+        "risk_level": "medium",
+        "human_required": "recommended",
+        "risk_factors": [
+          "未检测到高风险内容",
+          "缺少关键条件（对象/地点/规格/时间等），需先向客户澄清"
+        ],
+        "confidence_sufficient": true,
+        "response_mode": "clarify",
+        "response_mode_reason": "缺少尺寸/地点/时间/对象等关键条件，应先澄清再答复",
+        "reason": "缺少关键条件，需先向客户澄清，不能直接下结论",
+        "policy_source": null,
+        "policy_traceable": false
+      },
+      "crash": null,
+      "level_ok": true,
+      "human_ok": true,
+      "extra_ok": true,
+      "passed": true
+    },
+    {
+      "id": "B-05",
+      "scenario": "边界3·部分回答+未覆盖声明+下一步",
+      "category": "边界",
+      "input": {
+        "query": "这款精华敏感肌能用吗？油皮能用吗？",
+        "answer": "本品成分温和，敏感肌可用；油皮适配性暂未确认，建议咨询人工确认。",
+        "context": {
+          "product_category": "护肤",
+          "match_confidence": 0.9
+        }
+      },
+      "expected": {
+        "risk_level": "low",
+        "human_required": "recommended",
+        "response_mode": "partial"
+      },
+      "actual": {
+        "risk_level": "low",
+        "human_required": "recommended",
+        "risk_factors": [
+          "未检测到高风险内容",
+          "仅部分问题可回答，需声明未覆盖部分与下一步动作"
+        ],
+        "confidence_sufficient": true,
+        "response_mode": "partial",
+        "response_mode_reason": "仅覆盖部分问题，需声明未覆盖部分与下一步动作",
+        "reason": "部分回答：已知信息可答，须声明未覆盖部分与下一步动作",
+        "policy_source": null,
+        "policy_traceable": false
+      },
+      "crash": null,
+      "level_ok": true,
+      "human_ok": true,
+      "extra_ok": true,
+      "passed": true
+    },
+    {
+      "id": "B-06",
+      "scenario": "边界3/4·部分回答但母婴高危->转人工",
+      "category": "人工介入",
+      "input": {
+        "query": "这款面霜孕妇能用吗？敏感肌能用吗？",
+        "answer": "敏感肌可用；孕妇使用需遵医嘱。",
+        "context": {
+          "product_category": "母婴",
+          "match_confidence": 0.9
+        }
+      },
+      "expected": {
+        "risk_level": "high",
+        "human_required": "yes",
+        "response_mode": "refuse_or_escalate",
+        "expected_factors": [
+          "母婴"
+        ]
+      },
+      "actual": {
+        "risk_level": "high",
+        "human_required": "yes",
+        "risk_factors": [
+          "母婴产品类(母婴)，自动回复高风险"
+        ],
+        "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "检测到高风险因素，拒绝自动断言，转人工处理",
+        "reason": "检测到高风险因素，必须人工确认后发送",
+        "policy_source": null,
+        "policy_traceable": false
+      },
+      "crash": null,
+      "level_ok": true,
+      "human_ok": true,
+      "extra_ok": true,
+      "passed": true
+    },
+    {
+      "id": "B-07",
+      "scenario": "边界1·信息完整规则明确->直接回答",
+      "category": "正常",
+      "input": {
+        "query": "你们几点营业？",
+        "answer": "周一至周日 9:00-21:00。",
+        "context": {
+          "product_category": "其他",
+          "match_confidence": 0.9
+        }
+      },
+      "expected": {
+        "risk_level": "low",
+        "human_required": "no",
+        "response_mode": "direct"
+      },
+      "actual": {
+        "risk_level": "low",
+        "human_required": "no",
+        "risk_factors": [
+          "未检测到高风险内容"
+        ],
+        "confidence_sufficient": true,
+        "response_mode": "direct",
+        "response_mode_reason": "信息完整、规则明确，可直接简洁回答",
+        "reason": "标准FAQ，置信度充足，可自动发送",
+        "policy_source": null,
+        "policy_traceable": false
+      },
+      "crash": null,
+      "level_ok": true,
+      "human_ok": true,
+      "extra_ok": true,
+      "passed": true
+    },
+    {
+      "id": "B-08",
+      "scenario": "边界4·超出业务范围->拒绝并说明边界",
+      "category": "人工介入",
+      "input": {
+        "query": "你们可以修手机吗？",
+        "answer": "本店仅提供美妆售前咨询，手机维修不在服务范围，建议联系品牌官方售后。",
+        "context": {
+          "product_category": "其他",
+          "match_confidence": 0.9
+        }
+      },
+      "expected": {
+        "risk_level": "low",
+        "human_required": "no",
+        "response_mode": "refuse_or_escalate"
+      },
+      "actual": {
+        "risk_level": "low",
+        "human_required": "no",
+        "risk_factors": [
+          "未检测到高风险内容"
+        ],
+        "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "超出业务范围或证据不足，拒绝回答并说明边界",
+        "reason": "超出业务范围/证据不足，安全拒绝并说明边界，不自动断言",
+        "policy_source": null,
+        "policy_traceable": false
+      },
+      "crash": null,
+      "level_ok": true,
+      "human_ok": true,
+      "extra_ok": true,
+      "passed": true
+    },
+    {
+      "id": "B-09",
+      "scenario": "边界4·证据不足->说明边界不自动断言",
+      "category": "人工介入",
+      "input": {
+        "query": "这款面膜什么时候上新款？",
+        "answer": "新品上市时间暂未公布，请关注官方渠道通知。",
+        "context": {
+          "product_category": "护肤",
+          "match_confidence": 0.9
+        }
+      },
+      "expected": {
+        "risk_level": "low",
+        "human_required": "no",
+        "response_mode": "refuse_or_escalate"
+      },
+      "actual": {
+        "risk_level": "low",
+        "human_required": "no",
+        "risk_factors": [
+          "未检测到高风险内容"
+        ],
+        "confidence_sufficient": true,
+        "response_mode": "refuse_or_escalate",
+        "response_mode_reason": "超出业务范围或证据不足，拒绝回答并说明边界",
+        "reason": "超出业务范围/证据不足，安全拒绝并说明边界，不自动断言",
+        "policy_source": null,
+        "policy_traceable": false
+      },
+      "crash": null,
+      "level_ok": true,
+      "human_ok": true,
+      "extra_ok": true,
+      "passed": true
+    },
+    {
+      "id": "B-10",
+      "scenario": "边界2·暂无法回答->先澄清",
+      "category": "边界",
+      "input": {
+        "query": "你们的会员积分规则是什么？",
+        "answer": "请稍等，我需要查询后回复您。",
+        "context": {
+          "product_category": "其他",
+          "match_confidence": 0.9
+        }
+      },
+      "expected": {
+        "risk_level": "medium",
+        "human_required": "recommended",
+        "response_mode": "clarify"
+      },
+      "actual": {
+        "risk_level": "medium",
+        "human_required": "recommended",
+        "risk_factors": [
+          "未检测到高风险内容",
+          "缺少关键条件（对象/地点/规格/时间等），需先向客户澄清"
+        ],
+        "confidence_sufficient": true,
+        "response_mode": "clarify",
+        "response_mode_reason": "缺少尺寸/地点/时间/对象等关键条件，应先澄清再答复",
+        "reason": "缺少关键条件，需先向客户澄清，不能直接下结论",
+        "policy_source": null,
+        "policy_traceable": false
       },
       "crash": null,
       "level_ok": true,

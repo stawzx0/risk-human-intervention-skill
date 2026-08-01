@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    Install risk-human-intervention skill (complete package v1.1.0) into Codex skills directory.
+    Install risk-human-intervention skill (complete package v1.4.0) into Codex skills directory.
 .DESCRIPTION
     Copies this package to %USERPROFILE%\.codex\skills\risk-human-intervention
     for automatic registration by Codex.
@@ -16,7 +16,7 @@ if (-not (Test-Path (Join-Path $source "SKILL.md"))) {
     exit 1
 }
 
-Write-Host "Installing risk-human-intervention skill (v1.1.0)..." -ForegroundColor Cyan
+Write-Host "Installing risk-human-intervention skill (v1.4.0)..." -ForegroundColor Cyan
 Write-Host "  From: $source"
 Write-Host "  To:   $dest"
 
