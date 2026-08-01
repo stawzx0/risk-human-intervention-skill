@@ -25,12 +25,15 @@ def expand_input(inp):
     if "query_repeat" in inp:
         seg, times = inp.pop("query_repeat")
         inp["query"] = seg * times
+    if "answer_repeat" in inp:
+        seg, times = inp.pop("answer_repeat")
+        inp["answer"] = seg * times
     return inp
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--evaluator", required=True, help="path to scripts dir containing risk_evaluator.py")
+    ap.add_argument("--evaluator", required=True)
     ap.add_argument("--evalset", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--tag", default="run")
@@ -56,8 +59,7 @@ def main():
             actual = None
             crash = f"{type(e).__name__}: {e}"
 
-        # Immutability / PII checks (E-21 style)
-        immutability_ok = (answer_before == answer) and (query is not None)
+        immutability_ok = (answer_before == answer)
         pii_ok = True
         if crash is None:
             blob = json.dumps(actual, ensure_ascii=False)
@@ -65,31 +67,25 @@ def main():
                 if probe in blob:
                     pii_ok = False
 
-        level_ok = False
-        human_ok = False
-        if crash is None:
-            level_ok = actual.get("risk_level") == expected.get("risk_level")
-            human_ok = actual.get("human_required") == expected.get("human_required")
+        level_ok = crash is None and actual.get("risk_level") == expected.get("risk_level")
+        human_ok = crash is None and actual.get("human_required") == expected.get("human_required")
         extra_ok = True
         if expected.get("immutability"):
             extra_ok = extra_ok and immutability_ok
         if expected.get("no_pii_leak"):
             extra_ok = extra_ok and pii_ok
+        if expected.get("expected_factors"):
+            factors = "".join(actual.get("risk_factors", [])) if actual else ""
+            extra_ok = extra_ok and all(f in factors for f in expected["expected_factors"])
 
         passed = (crash is None) and level_ok and human_ok and extra_ok
         results.append({
-            "id": c["id"],
-            "scenario": c["scenario"],
-            "category": c["category"],
-            "input": {"query": query[:80] + ("..." if len(query) > 80 else ""),
-                      "answer": answer[:80] + ("..." if len(answer) > 80 else ""),
+            "id": c["id"], "scenario": c["scenario"], "category": c["category"],
+            "input": {"query": str(query)[:60] + ("..." if len(str(query)) > 60 else ""),
+                      "answer": str(answer)[:60] + ("..." if len(str(answer)) > 60 else ""),
                       "context": context},
-            "expected": expected,
-            "actual": actual,
-            "crash": crash,
-            "level_ok": level_ok,
-            "human_ok": human_ok,
-            "extra_ok": extra_ok,
+            "expected": expected, "actual": actual, "crash": crash,
+            "level_ok": level_ok, "human_ok": human_ok, "extra_ok": extra_ok,
             "passed": passed,
         })
 
@@ -98,33 +94,22 @@ def main():
     n_pass = sum(1 for r in results if r["passed"])
     valid = [r for r in results if r["expected"].get("risk_level") in VALID_LEVELS]
     invalid = [r for r in results if r["expected"].get("risk_level") == "error"]
-    special = [r for r in results if r["expected"].get("risk_level") not in VALID_LEVELS and r["expected"].get("risk_level") != "error"]
 
     acc_ok = sum(1 for r in valid if r["level_ok"])
     dis_ok = sum(1 for r in valid if r["human_ok"])
     inv_ok = sum(1 for r in invalid if r["crash"] is None and r["level_ok"] and r["human_ok"])
     n_crash = sum(1 for r in results if r["crash"])
 
-    # per-class precision/recall (valid cases only)
-    classes = {}
+    classes = {cls: {"tp": 0, "fp": 0, "fn": 0, "total": 0} for cls in VALID_LEVELS}
     for r in valid:
         exp = r["expected"]["risk_level"]
         act = r["actual"]["risk_level"] if r["actual"] else None
-        classes.setdefault(exp, {"tp": 0, "fp": 0, "fn": 0, "total": 0})
         classes[exp]["total"] += 1
         if act == exp:
             classes[exp]["tp"] += 1
-        if act == exp and act is not None:
-            pass
-        for cls in VALID_LEVELS:
-            if cls not in classes:
-                classes[cls] = {"tp": 0, "fp": 0, "fn": 0, "total": 0}
-    for r in valid:
-        exp = r["expected"]["risk_level"]
-        act = r["actual"]["risk_level"] if r["actual"] else None
-        if act != exp:
+        else:
             classes[exp]["fn"] += 1
-            if act and act in classes:
+            if act in classes:
                 classes[act]["fp"] += 1
     for cls, v in classes.items():
         v["precision"] = round(v["tp"] / (v["tp"] + v["fp"]), 4) if (v["tp"] + v["fp"]) else 0.0
@@ -132,28 +117,23 @@ def main():
         v["f1"] = round(2 * v["precision"] * v["recall"] / (v["precision"] + v["recall"]), 4) if (v["precision"] + v["recall"]) else 0.0
 
     metrics = {
-        "total_cases": n_total,
-        "passed": n_pass,
-        "crash_count": n_crash,
-        "valid_cases": len(valid),
-        "invalid_input_cases": len(invalid),
+        "total_cases": n_total, "passed": n_pass, "crash_count": n_crash,
+        "valid_cases": len(valid), "invalid_input_cases": len(invalid),
         "risk_accuracy": round(acc_ok / len(valid), 4) if valid else 0.0,
         "disposition_accuracy": round(dis_ok / len(valid), 4) if valid else 0.0,
         "business_effective_resolution_rate": round(dis_ok / len(valid), 4) if valid else 0.0,
         "invalid_input_handling_rate": round(inv_ok / len(invalid), 4) if invalid else 0.0,
-        "per_class": classes,
-        "pass_rate": round(n_pass / n_total, 4) if n_total else 0.0,
+        "per_class": classes, "pass_rate": round(n_pass / n_total, 4) if n_total else 0.0,
     }
 
     report = {"tag": args.tag, "metrics": metrics, "cases": results}
     with open(args.out, "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
 
-    # ---- Console table: 测试场景 | 输入 | 预期 | 实际 | 是否通过 ----
     print("=" * 120)
-    print(f"EVAL RUN [{args.tag}]  evaluator={os.path.abspath(args.evaluator)}")
+    print(f"EVAL RUN [{args.tag}]  evaluator={os.path.abspath(args.evaluator)}  cases={n_total}")
     print("=" * 120)
-    print(f"{'ID':6} {'测试场景':28} {'预期(风险/人工)':18} {'实际(风险/人工)':22} {'通过':6} 备注")
+    print(f"{'ID':6} {'测试场景':30} {'预期(风险/人工)':18} {'实际(风险/人工)':22} {'通过':6} 备注")
     for r in results:
         exp = r["expected"]
         exp_s = f"{exp.get('risk_level')}/{exp.get('human_required')}"
@@ -173,9 +153,9 @@ def main():
                 if not r["human_ok"]:
                     why.append("人工决策不符")
                 if not r["extra_ok"]:
-                    why.append("安全/不越权不符")
+                    why.append("因素/安全不符")
                 note = ";".join(why)
-        print(f"{r['id']:6} {r['scenario'][:26]:28} {exp_s:18} {act_s:22} {'PASS' if r['passed'] else 'FAIL':6} {note}")
+        print(f"{r['id']:6} {r['scenario'][:28]:30} {exp_s:18} {act_s:22} {'PASS' if r['passed'] else 'FAIL':6} {note}")
     print("=" * 120)
     print("METRICS:", json.dumps(metrics, ensure_ascii=False, indent=2))
 

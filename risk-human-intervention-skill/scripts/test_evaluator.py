@@ -1,7 +1,7 @@
 ﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Test Suite 风险与人工介入评估器（完整回归套件，v1.1.0）
+Test Suite 风险与人工介入评估器（完整回归套件，v1.2.0）
 - 覆盖：正常、人工介入(促销/库存/医疗/投诉/母婴)、置信度边界、无效输入、系统异常、否定语境、权限(不越权)
 - 运行：python scripts/test_evaluator.py
 - 依赖：仅标准库
@@ -134,6 +134,34 @@ class TestRiskEvaluator(unittest.TestCase):
         self.assertNotIn("13800138001", blob, "输出不应包含客户手机号")
         self.assertNotIn("张三", blob, "输出不应包含客户姓名")
 
+
+
+    # ---- v1.2.0：分句否定消解 + 投诉政策 FAQ（输入与评测集 N-02/N-16/N-18/N-20/N-23 对齐）----
+    def test_20_negation_list_medical(self):
+        self._assert_risk(
+            "这个精华敏感肌能用吗？", "本品不含任何美白、祛斑成分。",
+            {"product_category": "护肤", "match_confidence": 0.9}, "low", "no", "顿号否定列表")
+
+    def test_21_double_negation_promo(self):
+        self._assert_risk(
+            "这个月店铺有活动吗？", "本品不是没有优惠，全场8折起。",
+            {"product_category": "护肤", "match_confidence": 0.85},
+            "high", "yes", "双重否定=有优惠")
+
+    def test_22_refund_policy_faq(self):
+        self._assert_risk(
+            "你们的售后政策是什么？", "支持7天无理由退款退货。",
+            {"product_category": "其他", "match_confidence": 0.92}, "low", "no", "退款政策FAQ")
+
+    def test_23_query_refund_triggers(self):
+        self._assert_risk(
+            "怎么申请退货？", "请联系人工客服办理退货。",
+            {"product_category": "其他", "match_confidence": 0.9}, "high", "yes", "query含退货")
+
+    def test_24_answer_refund_non_policy(self):
+        self._assert_risk(
+            "你好", "系统正在为您处理退款。",
+            {"product_category": "其他", "match_confidence": 0.9}, "high", "yes", "answer非政策声明")
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

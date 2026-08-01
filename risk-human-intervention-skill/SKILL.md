@@ -44,7 +44,7 @@ Evaluate whether a knowledge-base-suggested response can be sent automatically o
 | R1 | 涉及促销/优惠/价格变更（context 标记或关键词，query 侧命中即触发） | high | yes |
 | R2 | 涉及库存承诺/缺货信息（同上） | high | yes |
 | R3 | 涉及医疗功效宣称/成分安全（同上） | high | yes |
-| R4 | 投诉/纠纷类问题（投诉/退款/退货/差评/过敏/不良反应/维权） | high | yes |
+| R4 | 投诉/纠纷类问题（投诉/差评/维权/不良反应/过敏；退款/退货：query 侧命中即触发，answer 侧命中仅政策声明可消解） | high | yes |
 | R5 | 标准FAQ，无敏感规则命中且置信度 >= 0.8 | low | no |
 | R6 | 置信度 < 0.6 | medium | recommended |
 | R7 | 置信度 0.6-0.8 且无敏感内容 | medium | recommended |
@@ -52,6 +52,14 @@ Evaluate whether a knowledge-base-suggested response can be sent automatically o
 | R9 | 未提供 match_confidence（上下文缺失/缺字段） | medium | recommended |
 
 优先级: 敏感规则(R1-R4/R8) > 置信度规则(R6-R7/R9) > 正常(R5)
+
+### v1.2.0 规则细节（分句否定消解 + 投诉政策 FAQ 消解）
+
+- 否定消解升级为**分句 + 否定计数**：按句读（。！？；，,;!?）分句，不拆顿号；同一分句内关键词之前的否定词计数为奇数时消解，偶数（双重否定）不消解。
+  - 例：`不含任何美白、祛斑成分` → 美白/祛斑均消解（顿号列表保持同一否定语境，v1.1.0 漏判）。
+  - 例：`不是没有优惠` → 双重否定 = 有优惠，不消解、触发 R1（v1.1.0 误消解）。
+  - 例：`暂未缺货，库存充足` → 缺货消解、库存仍触发（原行为保留）。
+- 投诉词表分离：`complaint` 仅保留 投诉/差评/维权/不良反应/过敏；`退款/退货` 单独处理——answer 侧命中 `支持/可以/提供/允许/享有/享受 + 退款/退货`（至多 8 字间隔）视为**政策声明**，不触发 R4；query 侧命中退款/退货始终触发。
 
 ### v1.1.0 规则细节（否定语境消解）
 
@@ -105,11 +113,12 @@ python scripts/risk_evaluator.py --query "..." --answer "..." --promotion
 ### 测试与评测
 
 ```bash
-# 快速单元回归（12 条断言，无外部依赖）
+# 快速单元回归（无外部依赖）
 python scripts/test_evaluator.py
 
-# 全量评测集（21 条用例，输出五字段结果表与指标）
+# 全量评测集（44 条用例，输出五字段结果表与指标）
 python scripts/run_evalset.py --evaluator scripts --evalset evalset/evalset.json --out results/latest.json
+# 对比两版本：python run_eval.py --evaluator <v1.2.0/scripts> --evalset evalset/evalset.json --out results/regression_v1.2.0.json
 ```
 
 ## Examples
@@ -135,8 +144,23 @@ answer: `本品不含任何医美成分，成分温和，敏感肌可用。`
 context: `{product_category: 护肤, match_confidence: 0.9}`
 结果: `low / no`（v1.0.0 会误报 high）
 
+### Example 4 — 退款政策 FAQ（v1.2.0，low/no）
+
+query: `你们支持7天无理由退款退货吗？`
+answer: `支持7天无理由退款退货，商品不影响二次销售即可。`
+context: `{product_category: 护肤, match_confidence: 0.9}`
+结果: `low / no`（v1.1.0 误判为投诉 high；v1.2.0 识别为政策声明）
+
+### Example 5 — 双重否定（v1.2.0，high/yes）
+
+query: `这次618是不是没有优惠了？`
+answer: `不是没有优惠，叠加满减后力度更大。`
+context: `{product_category: 护肤, involves_promotion: false, match_confidence: 0.85}`
+结果: `high / yes`（v1.1.0 误消解为 low；v1.2.0 识别双重否定）
+
 ## Version
 
+- v1.2.0（2026-08-01，评测第二轮）：否定消解升级为分句+否定计数（修复顿号列表漏判与双重否定误消解）、投诉词表分离 + 退款政策 FAQ 消解
 - v1.1.0（2026-08-01）：输入校验（类型/空值/2000 字边界）、否定语境消解、medical 词表精修、error 契约文档化、9 条规则齐备
 - v1.0.0（2026-07-31）：初始版本，8 条规则实现
 - 变更明细见 `CHANGELOG.md`；评测闭环见 `README.md` 与 `results/`
