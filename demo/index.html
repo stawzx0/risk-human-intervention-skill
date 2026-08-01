@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>风险与人工介入评估器 · Demo</title>
+<style>
+  :root{--ink:#0a0a0a;--paper:#fafaf8;--accent:#002FA7;--green:#0e7a3d;--amber:#b26a00;--red:#b3001b;--grey:#6b6b6b}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background:var(--paper);color:var(--ink);padding:32px;max-width:1080px;margin:0 auto}
+  h1{font-size:22px;margin-bottom:6px}
+  .sub{color:var(--grey);font-size:13px;margin-bottom:24px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  @media(max-width:860px){.grid{grid-template-columns:1fr}}
+  .card{background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:20px}
+  .card h2{font-size:15px;margin-bottom:14px}
+  label{display:block;font-size:13px;color:#444;margin:12px 0 4px}
+  input[type=text],textarea,select{width:100%;padding:8px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px;font-family:inherit}
+  textarea{min-height:64px;resize:vertical}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .checks{display:flex;gap:14px;margin-top:8px;font-size:13px}
+  .checks label{display:inline-flex;align-items:center;gap:4px;margin:0;color:#444}
+  button{cursor:pointer;border-radius:6px;font-size:13px;padding:8px 14px;border:1px solid #ccc;background:#fff}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent);margin-top:16px;width:100%;padding:10px;font-size:14px}
+  .presets{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+  .presets button{text-align:left;padding:9px 12px;border:1px solid #ddd;background:#f7f7f5}
+  .presets button:hover{border-color:var(--accent)}
+  .result{min-height:220px}
+  .badge{display:inline-block;padding:4px 14px;border-radius:999px;color:#fff;font-size:14px;font-weight:600;margin-bottom:12px}
+  .low{background:var(--green)}.medium{background:var(--amber)}.high{background:var(--red)}.error{background:var(--grey)}
+  .kv{font-size:13px;line-height:1.9}
+  .kv b{color:#333}
+  .factors{margin-top:12px;font-size:13px;color:#444}
+  .factors li{margin-left:18px;line-height:1.8}
+  .reason{margin-top:14px;padding:10px 12px;background:#f4f4f2;border-radius:6px;font-size:13px;line-height:1.7}
+  .foot{margin-top:28px;color:var(--grey);font-size:12px;line-height:1.8}
+  .flash{position:fixed;right:20px;bottom:20px;background:var(--green);color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none}
+</style>
+</head>
+<body>
+<h1>美妆零售客服 · 风险与人工介入评估器 Demo</h1>
+<div class="sub">发送前安全阀：判定话术推荐回复可直接自动发送、建议人工复核还是必须人工介入 ｜ 版本 v1.1.0</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>① 输入（客户问题 / 系统回复 / 上下文）</h2>
+    <label>客户原始问题（query）</label>
+    <textarea id="query" placeholder="例如：这款精华液的成分是什么？"></textarea>
+    <label>系统推荐回复（answer）</label>
+    <textarea id="answer" placeholder="例如：含玻尿酸和烟酰胺，适合油皮。"></textarea>
+    <div class="row">
+      <div style="flex:1">
+        <label>产品品类</label>
+        <select id="category">
+          <option>护肤</option><option>彩妆</option><option>香水</option><option>母婴</option><option>个护</option><option>其他</option>
+        </select>
+      </div>
+      <div style="flex:1">
+        <label>匹配置信度 (0-1)</label>
+        <input type="text" id="confidence" value="0.92">
+      </div>
+    </div>
+    <div class="checks">
+      <label><input type="checkbox" id="promo"> 涉及促销</label>
+      <label><input type="checkbox" id="inventory"> 涉及库存</label>
+      <label><input type="checkbox" id="medical"> 涉及医疗宣称</label>
+    </div>
+    <button class="primary" id="run">开始评估</button>
+  </div>
+
+  <div class="card">
+    <h2>② 快速场景（演示用预设）</h2>
+    <div class="presets">
+      <button data-preset="normal">正常流程：标准 FAQ → 自动发送（low / no）</button>
+      <button data-preset="promo">人工介入：促销咨询 → 转人工（high / yes）</button>
+      <button data-preset="negation">边界场景：否定语境 → 不再误报（low / no）</button>
+      <button data-preset="oversize">边界场景：超长输入 → 错误拦截（error）</button>
+      <button data-preset="badconf">无效输入：置信度类型错误 → 不崩溃（error）</button>
+    </div>
+    <div class="result" id="result" style="margin-top:20px">
+      <div class="sub">评估结果将显示在右侧</div>
+    </div>
+  </div>
+</div>
+
+<div class="foot">
+  说明：演示为正常流程与失败/边界场景对照。基线 v1.0.0 中「否定语境」「超长输入」「置信度类型错误」分别误报/未拦截/崩溃；
+  v1.1.0 已修复。评测闭环详见《Eval 与项目验收报告》。
+</div>
+<div class="flash" id="flash"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const PRESETS = {
+  normal: {
+    query: "这款精华液的成分是什么？", answer: "含玻尿酸和烟酰胺，适合油皮，早晚各一次。",
+    category: "护肤", confidence: "0.92", promo: false, inventory: false, medical: false
+  },
+  promo: {
+    query: "现在买这个面霜有优惠吗？", answer: "目前该面霜参加满300减50活动，截止到本月底。",
+    category: "护肤", confidence: "0.85", promo: true, inventory: false, medical: false
+  },
+  negation: {
+    query: "这个精华敏感肌可以用吗？", answer: "本品不含任何医美成分，成分温和，敏感肌可用。",
+    category: "护肤", confidence: "0.90", promo: false, inventory: false, medical: false
+  },
+  oversize: {
+    query: "你好".repeat(1300), answer: "谢谢您的咨询。",
+    category: "其他", confidence: "0.95", promo: false, inventory: false, medical: false
+  },
+  badconf: {
+    query: "你好", answer: "您好，很高兴为您服务！",
+    category: "其他", confidence: "abc", promo: false, inventory: false, medical: false
+  }
+};
+const LEVEL_META = {
+  low:    {cls: "low",    label: "LOW 低风险 · 可自动发送"},
+  medium: {cls: "medium", label: "MEDIUM 中风险 · 建议人工复核"},
+  high:   {cls: "high",   label: "HIGH 高风险 · 必须人工介入"},
+  error:  {cls: "error",  label: "ERROR 输入无效 · 不发送"}
+};
+const HUMAN_META = {
+  no: "可自动发送（无需人工）", recommended: "建议人工复核", yes: "必须人工确认后发送", error: "输入无效"
+};
+
+function flash(msg) {
+  const f = $("flash"); f.textContent = msg; f.style.opacity = 1;
+  setTimeout(() => f.style.opacity = 0, 2000);
+}
+function fillPreset(p) {
+  $("query").value = p.query; $("answer").value = p.answer;
+  $("category").value = p.category; $("confidence").value = p.confidence;
+  $("promo").checked = p.promo; $("inventory").checked = p.inventory; $("medical").checked = p.medical;
+}
+document.querySelectorAll("[data-preset]").forEach(btn => {
+  btn.addEventListener("click", () => { fillPreset(PRESETS[btn.dataset.preset]); flash("已载入预设：" + btn.textContent.trim().split("：")[0]); });
+});
+
+async function run() {
+  const payload = {
+    query: $("query").value,
+    answer: $("answer").value,
+    context: {
+      product_category: $("category").value,
+      involves_promotion: $("promo").checked,
+      involves_inventory: $("inventory").checked,
+      involves_medical_claim: $("medical").checked,
+      match_confidence: $("confidence").value === "" ? null : Number($("confidence").value)
+    }
+  };
+  $("result").innerHTML = '<div class="sub">评估中…</div>';
+  let resp;
+  try {
+    resp = await fetch("/api/evaluate", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(payload)});
+    const data = await resp.json();
+    if (!data.ok) { $("result").innerHTML = `<div class="sub">服务异常：${data.error}</div>`; return; }
+    const r = data.result;
+    const meta = LEVEL_META[r.risk_level] || LEVEL_META.error;
+    const factors = (r.risk_factors || []).map(f => `<li>${f}</li>`).join("");
+    $("result").innerHTML = `
+      <span class="badge ${meta.cls}">${meta.label}</span>
+      <div class="kv">
+        <div><b>人工介入：</b>${HUMAN_META[r.human_required] || r.human_required}</div>
+        <div><b>置信度充足：</b>${r.confidence_sufficient ? "是" : "否"}</div>
+      </div>
+      <div class="factors"><b>风险因素：</b><ul>${factors || "<li>无</li>"}</ul></div>
+      <div class="reason"><b>决策理由：</b>${r.reason}</div>`;
+  } catch (e) {
+    $("result").innerHTML = `<div class="sub">请求失败：${e.message}</div>`;
+  }
+}
+$("run").addEventListener("click", run);
+fillPreset(PRESETS.normal);
+</script>
+</body>
+</html>
