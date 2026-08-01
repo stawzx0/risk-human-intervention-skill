@@ -67,8 +67,8 @@
         <input type="text" id="confidence" value="0.92">
       </div>
     </div>
-    <label>政策出处 policy_source（可追溯，如 shipping-policy#SP-01）</label>
-    <input type="text" id="policy_source" placeholder="shipping-policy#SP-01（可选，R13）">
+    <label>政策出处（可追溯，如 发货政策#SP-01）</label>
+    <input type="text" id="policy_source" placeholder="发货政策#SP-01（可选）">
     <div class="checks">
       <label><input type="checkbox" id="promo"> 涉及促销</label>
       <label><input type="checkbox" id="inventory"> 涉及库存</label>
@@ -80,21 +80,21 @@
   <div class="card">
     <h2>② 快速场景（演示用预设）</h2>
     <div class="presets">
-      <button data-preset="normal">正常流程：标准 FAQ → 自动发送（low / no）</button>
-      <button data-preset="ship_faq">正常流程：发货政策 FAQ → 自动发送（low / no）</button>
-      <button data-preset="ship_time">人工介入：发货时效承诺 → 转人工（high / yes，R10）</button>
-      <button data-preset="ship_traceable">人工介入：时效承诺 + 政策出处 → 转人工（high / yes，R13 可追溯）</button>
-      <button data-preset="ship_size">人工介入：特殊尺寸计费 → 转人工（high / yes，R11）</button>
-      <button data-preset="ship_price">人工介入：价格例外/议价 → 转人工（high / yes，R12）</button>
-      <button data-preset="promo">人工介入：促销咨询 → 转人工（high / yes）</button>
-      <button data-preset="negation">边界场景：否定语境 → 不再误报（low / no）</button>
-      <button data-preset="oversize">边界场景：超长输入 → 错误拦截（error）</button>
-      <button data-preset="badconf">无效输入：置信度类型错误 → 不崩溃（error）</button>
-      <button data-preset="refundfaq">正常流程：退款政策 FAQ → 自动发送（low / no，v1.2.0 修复）</button>
-      <button data-preset="doubleneg">人工介入：双重否定 → 正确识别为有优惠（high / yes，v1.2.0 修复）</button>
-      <button data-preset="boundary_clarify">边界2·需先澄清：缺规格 → 先澄清再答复（medium / recommended，R14）</button>
-      <button data-preset="boundary_partial">边界3·部分回答：已答敏感肌+未覆盖油皮 → 声明未覆盖与下一步（low / recommended，R15）</button>
-      <button data-preset="boundary_refuse">边界4·不能回答：超出业务范围 → 拒绝并说明边界（low / no，R16）</button>
+      <button data-preset="normal">正常流程：标准 FAQ → 可自动发送</button>
+      <button data-preset="ship_faq">正常流程：发货政策 FAQ → 可自动发送</button>
+      <button data-preset="ship_time">人工介入：发货时效承诺 → 必须人工介入</button>
+      <button data-preset="ship_traceable">人工介入：时效承诺 + 政策出处 → 必须人工介入（可追溯核验）</button>
+      <button data-preset="ship_size">人工介入：特殊尺寸计费 → 必须人工介入</button>
+      <button data-preset="ship_price">人工介入：价格例外/议价 → 必须人工介入</button>
+      <button data-preset="promo">人工介入：促销咨询 → 必须人工介入</button>
+      <button data-preset="negation">边界场景：否定语境 → 不再误报（可自动发送）</button>
+      <button data-preset="oversize">边界场景：超长输入 → 拦截并提示（输入无效）</button>
+      <button data-preset="badconf">无效输入：置信度类型错误 → 提示输入无效，不崩溃</button>
+      <button data-preset="refundfaq">正常流程：退款政策 FAQ → 可自动发送（v1.2.0 修复）</button>
+      <button data-preset="doubleneg">人工介入：双重否定 → 正确识别为有优惠（v1.2.0 修复）</button>
+      <button data-preset="boundary_clarify">边界2·需先澄清：缺规格 → 先澄清再答复（建议人工复核）</button>
+      <button data-preset="boundary_partial">边界3·部分回答：已答敏感肌+未覆盖油皮 → 声明未覆盖与下一步（建议人工复核）</button>
+      <button data-preset="boundary_refuse">边界4·不能回答：超出业务范围 → 拒绝并说明边界（可自动发送）</button>
     </div>
     <div class="result" id="result" style="margin-top:20px">
       <div class="sub">评估结果将显示在此处</div>
@@ -104,7 +104,7 @@
 
 <div class="card" style="margin-top:24px">
   <h2>③ 发货知识库（可追溯政策出处，SP-01~SP-05）</h2>
-  <div class="sub">页面通过 <code>GET /api/kb</code> 查询发货知识库；评估时自动高亮命中当前问题的政策条目。</div>
+  <div class="sub">页面自动加载发货政策知识库（SP-01~SP-05）；评估时自动高亮命中当前问题的政策条目。</div>
   <div class="kb" id="kb"></div>
 </div>
 
@@ -112,7 +112,7 @@
   说明：演示为正常流程与失败/边界场景对照。第一轮（v1.0.0→v1.1.0）修复「否定语境误报」「超长输入未拦截」「置信度类型错误崩溃」；
   第二轮（v1.1.0→v1.2.0）修复「退款政策 FAQ 误判投诉」「双重否定误消解」；
   第三轮（v1.2.0→v1.3.0）按约定补齐「发货时效承诺 / 特殊尺寸 / 价格例外转人工」与「政策出处可追溯、无出处不做断言」；
-  第四轮（v1.3.0→v1.4.0）新增「回答边界四类」：可直接回答（direct）/ 需先澄清（clarify）/ 只能回答一部分（partial）/ 不能回答（refuse_or_escalate）。
+  第四轮（v1.3.0→v1.4.0）新增「回答边界四类」：可直接回答 / 需先澄清 / 只能回答一部分（须声明未覆盖与下一步）/ 不能回答（拒绝或转人工）。
   评测闭环详见《Eval 与项目验收报告》。
 </div>
 <div class="flash" id="flash"></div>
@@ -183,14 +183,32 @@ const PRESETS = {
   }
 };
 const LEVEL_META = {
-  low:    {cls: "low",    label: "LOW 低风险 · 可自动发送"},
-  medium: {cls: "medium", label: "MEDIUM 中风险 · 建议人工复核"},
-  high:   {cls: "high",   label: "HIGH 高风险 · 必须人工介入"},
-  error:  {cls: "error",  label: "ERROR 输入无效 · 不发送"}
+  low:    {cls: "low",    label: "低风险 · 可自动发送"},
+  medium: {cls: "medium", label: "中风险 · 建议人工复核"},
+  high:   {cls: "high",   label: "高风险 · 必须人工介入"},
+  error:  {cls: "error",  label: "输入无效 · 不发送"}
 };
 const HUMAN_META = {
   no: "可自动发送（无需人工）", recommended: "建议人工复核", yes: "必须人工确认后发送", error: "输入无效"
 };
+const MODE_LABEL = {
+  direct: "可直接回答", clarify: "需先澄清", partial: "部分回答（已声明未覆盖与下一步）", refuse_or_escalate: "拒绝或转人工"
+};
+function zhtext(s) {
+  return String(s || "")
+    .replace(/match_confidence/g, "匹配置信度")
+    .replace(/shipping-policy/g, "发货政策")
+    .replace(/policy_source/g, "政策出处")
+    .replace(/政策出处缺失（政策出处 未提供）/g, "政策出处缺失（未提供出处）")
+    .replace(/confidence 值 NaN 不在 0-1 范围内/g, "置信度必须为 0-1 之间的数值")
+    .replace(/confidence 值/g, "置信度")
+    .replace(/confidence/g, "置信度")
+    .replace(/query\+answer/g, "问题与回复")
+    .replace(/query\/answer/g, "问题/回复")
+    .replace(/response_mode/g, "回答边界")
+    .replace(/human_required/g, "人工介入要求")
+    .replace(/risk_level/g, "风险等级");
+}
 let KB = [];
 
 function esc(s) {
@@ -261,18 +279,18 @@ async function run() {
   }
   try {
     const meta = LEVEL_META[r.risk_level] || LEVEL_META.error;
-    const factors = (r.risk_factors || []).map(f => `<li>${esc(f)}</li>`).join("");
-    const src = r.policy_source ? esc(r.policy_source) : "未提供";
+    const factors = (r.risk_factors || []).map(f => `<li>${esc(zhtext(f))}</li>`).join("");
+    const src = r.policy_source ? esc(zhtext(r.policy_source)) : "未提供";
     $("result").innerHTML = `
       <span class="badge ${meta.cls}">${meta.label}</span>
       <div class="kv">
         <div><b>人工介入：</b>${esc(HUMAN_META[r.human_required] || r.human_required)}</div>
         <div><b>置信度充足：</b>${r.confidence_sufficient ? "是" : "否"}</div>
         <div><b>政策出处：</b>${src} ｜ <b>可追溯：</b>${r.policy_traceable ? "是" : "否"}</div>
-        <div><b>回答边界：</b>${esc(r.response_mode || "-")} ｜ <b>判定依据：</b>${esc(r.response_mode_reason || "-")}</div>
+        <div><b>回答边界：</b>${esc(MODE_LABEL[r.response_mode] || zhtext(r.response_mode) || "-")} ｜ <b>判定依据：</b>${esc(r.response_mode_reason || "-")}</div>
       </div>
       <div class="factors"><b>风险因素：</b><ul>${factors || "<li>无</li>"}</ul></div>
-      <div class="reason"><b>决策理由：</b>${esc(r.reason)}</div>`;
+      <div class="reason"><b>决策理由：</b>${esc(zhtext(r.reason))}</div>`;
   } catch (e) {
     $("result").innerHTML = `<div class="sub">请求失败：${esc(e.message)}</div>`;
   }
